@@ -1,7 +1,6 @@
 #include "Base.h"
 #include "Matrix.h"
 
-//#include <stdexcept>
 #include <cstdint>		// std::uint32_t
 #include <random>		// PRNG inside matFillRandf()
 #include <algorithm>	// std::max_element
@@ -102,11 +101,15 @@ namespace Matrix
 		}
 	}
 
+	// out accumulates with +=, so must start zeroed out
 	void matMul(
 		Matrix& out, const Matrix& a, const Matrix& b, 
 		bool transpose_a, bool transpose_b
 	)
 	{
+		// zero out
+		matFill(out, 0.0f);
+
 		Size a_rows{ transpose_a ? a.cols : a.rows };
 		Size a_cols{ transpose_a ? a.rows : a.cols };
 		Size b_rows{ transpose_b ? b.cols : b.rows };

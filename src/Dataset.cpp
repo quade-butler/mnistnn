@@ -2,7 +2,6 @@
 #include "Dataset.h"
 
 #include <fstream>
-//#include <stdexcept>
 #include <cstdint>
 
 #include <iostream>
@@ -70,13 +69,11 @@ namespace Dataset
 		if (!imagesFile)
 			throw runtime_error("ERROR: Cannot read images file.");
 
-
 		// allocate 2 bytes as per seekg() below
 		Vector<Pixel> magicHeader(2);
 
 		// skip first 2 bytes
 		imagesFile.seekg(2, std::ios::beg);
-
 		imagesFile.read(
 			reinterpret_cast<char*>(magicHeader.data()), magicHeader.size()
 		);

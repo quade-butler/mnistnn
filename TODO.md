@@ -1,7 +1,7 @@
-TODO:
+# TODO
 
 - matMul: currently accumulates into `out`; only works when `out` starts at zero.
-    - Overwrite output or accumulate output? Lean towards make it overwrite by zeroing `out` internally before mult.
+    - COMPLETE: made it zero out
 - tests:
     - matMul with known values
     - transposed matMul

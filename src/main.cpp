@@ -12,8 +12,9 @@ int main()
 {
     using Mat   = Matrix::Matrix;
     using Model = ModelNN::ModelNN;
-    // Image data paths
     
+    // Image data paths
+    // Note: original data was EMNIST (transposed/rotated) not MNIST
     const String dataDir{ MNISTNN_DATA_DIR };
     // const String trainImages{ dataDir + "train-images-idx3-ubyte.bin" };
     // const String trainLabels{ dataDir + "train-labels-idx1-ubyte.bin" };
@@ -29,7 +30,10 @@ int main()
     
     Mat z = model.forward(test.image(0));
 
-    matPrint(z);
+    
+    
+    
+    
 
     return 0;
 }

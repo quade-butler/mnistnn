@@ -34,10 +34,9 @@ namespace ModelNN
 		return out;
 	}
 
-	/* ModelNN::forward
-	* Input:	image  (type span<Pixel>)
-	* Output:	logits (type Matrix)
-	*/
+	// ModelNN::forward
+	// 	Input:	image  (type span<Pixel>)
+	// 	Output:	logits (type Matrix)
 	Mat ModelNN::forward(Span<const Pixel> xui8) const
 	{
 		Mat x{ inputToMatrix(xui8) };
