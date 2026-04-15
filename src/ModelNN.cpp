@@ -1,0 +1,58 @@
+#include "Base.h"
+#include "ModelNN.h"
+#include "Matrix.h"
+
+#include <cmath>
+
+namespace ModelNN
+{
+	using Mat = Matrix::Matrix;
+
+	ModelNN::ModelNN(Size hiddenNodes) 
+		: hidden{hiddenNodes}, W0{hidden, input}, b0{hidden, 1}
+		, W1{output, hidden}, b1{output, 1}
+	{
+		float bound0{ std::sqrt(6.0f / (input + hidden)) };
+		float bound1{ std::sqrt(6.0f / (hidden + output)) };
+
+		// biases kept at zero
+
+		matFillRandf(W0, bound0);
+		matFillRandf(W1, bound1);
+	}
+	
+	// Converts Span<uint8_t> pixels to Matrix float, then normalizes
+	static Mat inputToMatrix(Span<const Pixel> x)
+	{
+		Mat out(x.size(), 1);
+
+		for (Size i{ 0 }; i < x.size(); ++i)
+		{
+			out.data[i] = static_cast<float>(x[i]) / 255.0f;
+		}
+
+		return out;
+	}
+
+	/* ModelNN::forward
+	* Input:	image  (type span<Pixel>)
+	* Output:	logits (type Matrix)
+	*/
+	Mat ModelNN::forward(Span<const Pixel> xui8) const
+	{
+		Mat x{ inputToMatrix(xui8) };
+		
+		Mat z1(hidden, 1);
+		matMul(z1, W0, x);
+		matAdd(z1, z1, b0);
+		matSigmoid(z1);
+
+		Mat z2(output, 1);
+		matMul(z2, W1, z1);
+		matAdd(z2, z2, b1);
+		//matSoftmax(z2);
+		
+		return z2; // logits
+	}
+
+} // end namespace ModelNN
