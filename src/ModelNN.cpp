@@ -50,7 +50,6 @@ namespace ModelNN
 		Mat z2(output, 1);
 		matMul(z2, W1, z1);
 		matAdd(z2, z2, b1);
-		//matSoftmax(z2);
 		
 		return z2; // logits
 	}

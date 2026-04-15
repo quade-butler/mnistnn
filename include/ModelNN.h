@@ -11,13 +11,12 @@ namespace ModelNN
 {
 	using Mat = Matrix::Matrix;
 
-	/* ModelNN::Model
-	* Neural network model with layers:
-	*  - input  (size 784)
-	*  - hidden (size variable, default 128)
-	*  - output (size 10)
-	* Weight init based on sigmoid activation -> modify if using ReLu
-	*/
+	// ModelNN::Model
+	// Neural network model with layers:
+	//  - input  (size 784)
+	//  - hidden (size variable, default 128)
+	//  - output (size 10)
+	// Weight init based on sigmoid activation -> modify if using ReLu
 	struct ModelNN
 	{
 		Size input{ 784 };

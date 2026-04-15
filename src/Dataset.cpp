@@ -49,20 +49,19 @@ namespace Dataset
 		imgPixels.swap(trafoData);
 	}
 
-	/* Loads .idx binary data.
-	* IDX files have a header consisting of a magic number, e.g.,
-	*
-	*			  MAGIC	   |			 |			   |
-	*		0x 00 00 08 03 | 00 00 EA 60 | 00 00 00 1C | 00 00 00 1C
-	*		   -- -- -- -- | -- -- -- -- | -- -- -- -- | -- -- -- --
-	*	bytes: 1  2  3  4  | 	DIM 1	 |	DIM 2	   |	DIM 3
-	*
-	* The magic number is 4 bytes long and decoded as:
-	*   The first 2 bytes are always 0.
-	*   The third byte encodes the type of the data: 0x08 - unsigned byte.
-	*   The fourth byte encodes the number of dimensions of the array.
-	*   The sizes in each dimension are 4-byte (32-bit) integers (big-endian)
-	*/
+	// Loads .idx binary data.
+	// IDX files have a header consisting of a magic number, e.g.,
+	//
+	//  		  MAGIC	   |			 |			   |
+	//  	0x 00 00 08 03 | 00 00 EA 60 | 00 00 00 1C | 00 00 00 1C
+	//  	   -- -- -- -- | -- -- -- -- | -- -- -- -- | -- -- -- --
+	//  bytes: 1  2  3  4  | 	DIM 1	 |	DIM 2	   |	DIM 3
+	// 
+	// The magic number is 4 bytes long and decoded as:
+	// The first 2 bytes are always 0.
+	// The third byte encodes the type of the data: 0x08 - unsigned byte.
+	// The fourth byte encodes the number of dimensions of the array.
+	// The sizes in each dimension are 4-byte (32-bit) integers (big-endian)
 	Dataset loadIdxDataset(const String& imagesPath, const String& labelsPath)
 	{
 		// Images

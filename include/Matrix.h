@@ -1,4 +1,4 @@
-//
+// MATRIX
 
 #ifndef MATRIX_H
 #define MATRIX_H
@@ -7,11 +7,10 @@
 
 namespace Matrix
 {
-	/* Workflow with Matrix typically involves:
-	1. Create a Matrix with Matrix() constructor.
-	2. Operate on that matrix, e.g. matFill, matMul, matAdd, etc.
-	NOTE: Matrix only handles floats
-	*/
+	// Workflow with Matrix typically involves:
+	// 1. Create a Matrix with Matrix() constructor.
+	// 2. Operate on that matrix, e.g. matFill, matMul, matAdd, etc.
+	// NOTE: Matrix only handles floats
 	struct Matrix
 	{
 		Size rows{ 0 };

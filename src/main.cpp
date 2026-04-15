@@ -20,8 +20,8 @@ int main()
     const String testImages { dataDir + "test-images-idx3-ubyte.bin"  };
     const String testLabels { dataDir + "test-labels-idx1-ubyte.bin"  };
 
-//    const Dataset::Dataset train{
-//         Dataset::loadIdxDataset(trainImages,trainLabels) };
+    // const Dataset::Dataset train{
+    // Dataset::loadIdxDataset(trainImages,trainLabels) };
     const Dataset::Dataset test{
         Dataset::loadIdxDataset(testImages,testLabels) };
 
@@ -30,7 +30,6 @@ int main()
     Mat z = model.forward(test.image(0));
 
     matPrint(z);
-    
 
     return 0;
 }

@@ -9,14 +9,9 @@
 #include "DataLoader.h"
 #include "ModelNN.h"
 
-
-
-/*
-* TrainNN::Train needs to:
-*	- provide a train() function
-*	- provide a shuffle() function to shuffle data-label pairs
-* 
-*/
+// TrainNN::Train needs to:
+//	- provide a train() function
+//	- provide a shuffle() function to shuffle data-label pairs
 namespace TrainNN
 {
 	using Mat	= Matrix::Matrix;

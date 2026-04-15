@@ -169,7 +169,7 @@ namespace Matrix
 	{
 		for (Size i{ 0 }; i < out.rows * out.cols; ++i)
 		{
-			out.data[i] = 1 / (1 + std::exp(out.data[i]));
+			out.data[i] = 1 / (1 + std::exp(-out.data[i]));
 		}
 	}
 
