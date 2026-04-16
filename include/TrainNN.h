@@ -12,10 +12,9 @@
 // TrainNN::Train needs to:
 //	- provide a train() function
 //	- provide a shuffle() function to shuffle data-label pairs
-namespace TrainNN
+namespace mnistnn
 {
-	using Mat	= Matrix::Matrix;
-	using Model = ModelNN::ModelNN;
+	using Mat	= linalg::Matrix;
 
 	struct TrainConfig
 	{
@@ -39,6 +38,6 @@ namespace TrainNN
 	float crossEntropyLogit(const Mat& logits, Pixel y);
 	void train(Model& Model, const TrainConfig);
 
-} // end namespace TrainNN
+} // end namespace mnistnn
 
 #endif // TRAIN_NN_H

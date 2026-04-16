@@ -5,8 +5,9 @@
 #include <vector>  // std::vector, std::size_t
 #include <span>
 #include <string>
-#include <stdexcept>
 
+namespace mnistnn
+{
 // Types
 using Size	 = std::size_t;
 using Pixel	 = std::uint8_t;
@@ -18,9 +19,5 @@ using Vector = std::vector<T>;
 template<typename T>
 using Span = std::span<T>;
 
-
-// Errors
-using runtime_error = std::runtime_error;
-
-
+} // end namespace mnistnn
 #endif // BASE_H

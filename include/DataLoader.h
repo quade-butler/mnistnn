@@ -8,16 +8,17 @@
 #include "Base.h"
 #include "Dataset.h"
 
-namespace DataLoader 
+namespace mnistnn
 {
 
-	struct DataLoader
+	class DataLoader
 	{
-		const Dataset::Dataset& ds;
+	public:
+		const Dataset& ds;
 		Size pos{ 0 };
 		Vector<Size> idx;
 
-		explicit DataLoader(const Dataset::Dataset& d) 
+		explicit DataLoader(const Dataset& d) 
 			: ds(d), idx(d.n)
 		{
 			for (Size i{ 0 }; i < d.n; ++i) idx[i] = i;
@@ -27,6 +28,6 @@ namespace DataLoader
 
 	};
 
-} // end namespace DataLoader
+} // end namespace mnistnn
 
 #endif // DATA_LOADER_H

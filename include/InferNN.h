@@ -3,7 +3,7 @@
 #ifndef INFER_NN_H
 #define INFER_NN_H
 
-namespace InferNN
+namespace mnistnn
 {
 	struct Infer
 	{
@@ -11,6 +11,6 @@ namespace InferNN
 	};
 
 
-} // end namespace InferNN
+} // end namespace mnistnn
 
 #endif // INFER_NN_H

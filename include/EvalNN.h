@@ -3,7 +3,7 @@
 #ifndef EVAL_NN_H
 #define EVAL_NN_H
 
-namespace EvalNN
+namespace mnistnn
 {
 	struct Eval
 	{
@@ -11,6 +11,6 @@ namespace EvalNN
 	};
 
 
-} // end namespace EvalNN
+} // end namespace mnistnn
 
 #endif // EVAL_NN_H

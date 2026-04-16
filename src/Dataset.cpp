@@ -3,50 +3,54 @@
 
 #include <fstream>
 #include <cstdint>
+#include <stdexcept>
 
 #include <iostream>
 #include <iomanip> // for std::setw() in write/print
 
 
-namespace Dataset 
+namespace mnistnn
 {
-	// Swaps the endianness of a 32-bit integer
-	static constexpr std::uint32_t byteSwap32(std::uint32_t x) 
+	namespace
 	{
-		return	((x & 0x000000FFu) << 24)|
-				((x & 0x0000FF00u) << 8) |
-				((x & 0x00FF0000u) >> 8) |
-				((x & 0xFF000000u) >> 24);
-	}
-
-	// Reorients pixel data so that it is right-side up.
-	// * NOTE: original EMNIST data is transposed and rotated.
-	static void reorientData(
-		Vector<Pixel>& imgPixels, 
-		Size numImages, 
-		Size dimSize) 
-	{
-
-		if (imgPixels.size() != numImages * dimSize * dimSize)
-			throw runtime_error("ERROR: Image size mismatch");
-
-		Vector<Pixel> trafoData(numImages * dimSize * dimSize);
-		Size totalPx{ dimSize * dimSize };
-
-		for (Size i{ 0 }; i < numImages; ++i) 
+		// Swaps the endianness of a 32-bit integer
+		static constexpr std::uint32_t byteSwap32(std::uint32_t x) 
 		{
-			for (Size r{ 0 }; r < dimSize; ++r) 
-			{
-				for (Size c{ 0 }; c < dimSize; ++c) 
-				{
-					trafoData[i * totalPx + r * dimSize + c] =
-						imgPixels[i * totalPx + c * dimSize + r];
-				}
-			}
+			return	((x & 0x000000FFu) << 24)|
+					((x & 0x0000FF00u) << 8) |
+					((x & 0x00FF0000u) >> 8) |
+					((x & 0xFF000000u) >> 24);
 		}
 
-		imgPixels.swap(trafoData);
-	}
+		// Reorients pixel data so that it is right-side up.
+		// * NOTE: original EMNIST data is transposed and rotated.
+		static void reorientData(
+			Vector<Pixel>& imgPixels, 
+			Size numImages, 
+			Size dimSize) 
+		{
+
+			if (imgPixels.size() != numImages * dimSize * dimSize)
+				throw std::runtime_error("ERROR: Image size mismatch");
+
+			Vector<Pixel> trafoData(numImages * dimSize * dimSize);
+			Size totalPx{ dimSize * dimSize };
+
+			for (Size i{ 0 }; i < numImages; ++i) 
+			{
+				for (Size r{ 0 }; r < dimSize; ++r) 
+				{
+					for (Size c{ 0 }; c < dimSize; ++c) 
+					{
+						trafoData[i * totalPx + r * dimSize + c] =
+							imgPixels[i * totalPx + c * dimSize + r];
+					}
+				}
+			}
+
+			imgPixels.swap(trafoData);
+		}
+	} // end namespace
 
 	// Loads .idx binary data.
 	// IDX files have a header consisting of a magic number, e.g.,
@@ -67,7 +71,7 @@ namespace Dataset
 		std::ifstream imagesFile(imagesPath, std::ios::binary);
 
 		if (!imagesFile)
-			throw runtime_error("ERROR: Cannot read images file.");
+			throw std::runtime_error("ERROR: Cannot read images file.");
 
 		// allocate 2 bytes as per seekg() below
 		Vector<Pixel> magicHeader(2);
@@ -105,7 +109,7 @@ namespace Dataset
 		std::ifstream labelsFile(labelsPath, std::ios::binary);
 
 		if (!labelsFile)
-			throw runtime_error("ERROR: Cannot read labels file.");
+			throw std::runtime_error("ERROR: Cannot read labels file.");
 
 		// skip first 2 bytes
 		labelsFile.seekg(2, std::ios::beg);
@@ -115,7 +119,7 @@ namespace Dataset
 		);
 
 		if (magicHeader.back() != 1)
-			throw runtime_error(
+			throw std::runtime_error(
 				"ERROR: Second dimension of labels needs to == 1."
 			);
 
@@ -126,7 +130,7 @@ namespace Dataset
 		numLabels = static_cast<Size>(byteSwap32(numLabels));
 
 		if (numImages != numLabels)
-			throw runtime_error(
+			throw std::runtime_error(
 				"ERROR: Number of images doesn't match number of labels."
 			);
 
@@ -164,4 +168,4 @@ namespace Dataset
 		std::cout << '\n';
 	}
 
-} // end namespace Dataset
+} // end namespace mnistnn

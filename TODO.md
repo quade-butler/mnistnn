@@ -1,5 +1,4 @@
 # TODO
-
 - matMul: currently accumulates into `out`; only works when `out` starts at zero.
     - COMPLETE: made it zero out
 - tests:
@@ -16,3 +15,8 @@
     - matSigmoid
     - crossEntropyWithLogits
     - maybe matScale
+
+# Building/Running
+- cmake -S . -B build
+- cmake --build build
+- ctest --test-dir build --output-on-failure

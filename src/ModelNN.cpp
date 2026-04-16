@@ -4,11 +4,11 @@
 
 #include <cmath>
 
-namespace ModelNN
+namespace mnistnn
 {
-	using Mat = Matrix::Matrix;
+	using Mat = linalg::Matrix;
 
-	ModelNN::ModelNN(Size hiddenNodes) 
+	Model::Model(Size hiddenNodes) 
 		: hidden{hiddenNodes}, W0{hidden, input}, b0{hidden, 1}
 		, W1{output, hidden}, b1{output, 1}
 	{
@@ -17,8 +17,8 @@ namespace ModelNN
 
 		// biases kept at zero
 
-		matFillRandf(W0, bound0);
-		matFillRandf(W1, bound1);
+		fillRandf(W0, bound0);
+		fillRandf(W1, bound1);
 	}
 	
 	// Converts Span<uint8_t> pixels to Matrix float, then normalizes
@@ -37,20 +37,20 @@ namespace ModelNN
 	// ModelNN::forward
 	// 	Input:	image  (type span<Pixel>)
 	// 	Output:	logits (type Matrix)
-	Mat ModelNN::forward(Span<const Pixel> xui8) const
+	Mat Model::forward(Span<const Pixel> xui8) const
 	{
 		Mat x{ inputToMatrix(xui8) };
 		
 		Mat z1(hidden, 1);
 		matMul(z1, W0, x);
-		matAdd(z1, z1, b0);
-		matSigmoid(z1);
+		add(z1, z1, b0);
+		sigmoid(z1);
 
 		Mat z2(output, 1);
 		matMul(z2, W1, z1);
-		matAdd(z2, z2, b1);
+		add(z2, z2, b1);
 		
 		return z2; // logits
 	}
 
-} // end namespace ModelNN
+} // end namespace mnistnn

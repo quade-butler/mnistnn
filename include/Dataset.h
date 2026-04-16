@@ -6,16 +6,20 @@
 
 #include "Base.h"
 
-namespace Dataset 
+namespace mnistnn
 {
-	struct Dataset 
+	class Dataset 
 	{
+	public:
 		Size n{ 0 };	 // num images
 		Size rows{ 28 }; // num rows
 		Size cols{ 28 }; // num cols
 
 		Vector<Pixel> images;
 		Vector<Pixel> labels;
+
+		Dataset(Size n, Size r, Size c, Vector<Pixel> img, Vector<Pixel> lbl)
+			: n{n}, rows{r}, cols{c}, images{img}, labels{lbl} {}
 
 
 		// Returns an image given an index
@@ -27,6 +31,6 @@ namespace Dataset
 
 	Dataset loadIdxDataset(const String& imagesPath, const String& labelsPath);
 
-} // end namespace Dataset
+} // end namespace mnistnn
 
 #endif // DATASET_H

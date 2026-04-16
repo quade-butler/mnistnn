@@ -10,8 +10,8 @@
 
 int main()
 {
-    using Mat   = Matrix::Matrix;
-    using Model = ModelNN::ModelNN;
+    using namespace mnistnn;
+    using Mat   = linalg::Matrix;
     
     // Image data paths
     // Note: original data was EMNIST (transposed/rotated) not MNIST
@@ -21,10 +21,8 @@ int main()
     const String testImages { dataDir + "test-images-idx3-ubyte.bin"  };
     const String testLabels { dataDir + "test-labels-idx1-ubyte.bin"  };
 
-    // const Dataset::Dataset train{
-    // Dataset::loadIdxDataset(trainImages,trainLabels) };
-    const Dataset::Dataset test{
-        Dataset::loadIdxDataset(testImages,testLabels) };
+    // const Dataset train{ loadIdxDataset(trainImages,trainLabels) };
+    const Dataset test{ loadIdxDataset(testImages,testLabels) };
 
     Model model{128};
     

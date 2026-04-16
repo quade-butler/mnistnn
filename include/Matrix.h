@@ -5,7 +5,7 @@
 
 #include "Base.h"
 
-namespace Matrix
+namespace mnistnn::linalg
 {
 	// Workflow with Matrix typically involves:
 	// 1. Create a Matrix with Matrix() constructor.
@@ -23,24 +23,24 @@ namespace Matrix
 			: rows{r}, cols{c}, data(r * c) {}
 	};
 
-	void matFill(Matrix& out, float value);
-	void matFillRandf(Matrix& out, float bound);
+	void fill(Matrix& out, float value);
+	void fillRandf(Matrix& out, float bound);
 
-	void matScale(Matrix& out, float scale);
+	void scale(Matrix& out, float scale);
 
 	void matMul(
 		Matrix& out, const Matrix& a, const Matrix& b,
 		bool transpose_a=false, bool transpose_b=false
 	);
-	void matAdd(Matrix& out, const Matrix& a, const Matrix& b);
-	void matSub(Matrix& out, const Matrix& a, const Matrix& b);
+	void add(Matrix& out, const Matrix& a, const Matrix& b);
+	void sub(Matrix& out, const Matrix& a, const Matrix& b);
 	
-	void matSigmoid(Matrix& out);
-	void matRelu(Matrix& out);
-	void matSoftmax(Matrix& out);
+	void sigmoid(Matrix& out);
+	void relu(Matrix& out);
+	void softmax(Matrix& out);
 
-	void matPrint(const Matrix& a);
+	void print(const Matrix& a);
 
-} // end namespace Matrix
+} // end namespace mnistnn
 
 #endif // MATRIX_H

@@ -1,7 +1,7 @@
 #include "Base.h"
 #include "TrainNN.h"
 
-namespace TrainNN
+namespace mnistnn
 {
 	float crossEntropyLogit(const Mat& logits, Pixel y)
 	{
