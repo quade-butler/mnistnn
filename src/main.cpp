@@ -22,16 +22,11 @@ int main()
     const String test_labels { data_dir + "test-labels-idx1-ubyte.bin"  };
 
     // const Dataset train{ loadIdxDataset(train_images,train_labels) };
-    const Dataset test{ loadIdxDataset(test_images,test_labels) };
+    const Dataset test{ loadIdxDataset(test_images, test_labels) };
 
     Model model{128};
     
     Mat z = model.forward(test.image(0));
-
-    
-    
-    
-    
 
     return 0;
 }

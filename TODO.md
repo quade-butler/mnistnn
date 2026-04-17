@@ -21,3 +21,11 @@
 - cmake -S . -B build
 - cmake --build build
 - ctest --test-dir build --output-on-failure
+
+# Build only test exe
+- cmake --build build --target mnistnn_tests
+
+# Debugging
+- cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+- cmake --build build
+- ctest --test-dir build --output-on-failure

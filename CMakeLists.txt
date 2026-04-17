@@ -30,7 +30,7 @@ target_link_libraries(mnistnn PRIVATE mnistnn_core)
 enable_testing()
 
 add_executable(mnistnn_tests
-    tests/MatrixTests.cpp
+    tests/test_matrix.cpp
 )
 
 target_link_libraries(mnistnn_tests PRIVATE mnistnn_core)

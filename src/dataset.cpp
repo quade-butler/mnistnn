@@ -23,7 +23,7 @@ namespace mnistnn
 		}
 
 		// Reorients pixel data so that it is right-side up.
-		// * NOTE: original EMNIST data is transposed and rotated.
+		// * NOTE: original EMNIST data is transposed/rotated.
 		static void reorientData(
 			Vector<Pixel>& img_pixels, 
 			Size num_images, 
@@ -65,7 +65,9 @@ namespace mnistnn
 	// The third byte encodes the type of the data: 0x08 - unsigned byte.
 	// The fourth byte encodes the number of dimensions of the array.
 	// The sizes in each dimension are 4-byte (32-bit) integers (big-endian)
-	Dataset loadIdxDataset(const String& images_path, const String& labels_path)
+	Dataset loadIdxDataset(
+		const String& images_path, 
+		const String& labels_path)
 	{
 		// Images
 		std::ifstream images_file(images_path, std::ios::binary);

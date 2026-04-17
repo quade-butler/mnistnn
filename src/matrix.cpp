@@ -118,9 +118,9 @@ namespace mnistnn::linalg
 		Size b_cols{ transpose_b ? b.rows : b.cols };
 
 		if (a_cols != b_rows) 
-			throw std::runtime_error("ERROR: a_cols != b_rows");
+			throw std::invalid_argument("ERROR: a_cols != b_rows");
 		if (out.rows != a_rows || out.cols != b_cols)
-			throw std::runtime_error("ERROR: incorrect size of out matrix");
+			throw std::invalid_argument("ERROR: incorrect size of out matrix");
 
 		// zero out
 		fill(out, 0.0f);
@@ -148,7 +148,9 @@ namespace mnistnn::linalg
 	void add(Matrix& out, const Matrix& a, const Matrix& b)
 	{
 		if (a.cols != b.cols || a.rows != b.rows)
-			throw std::runtime_error("ERROR: Dimensions of A and B do not match");
+			throw std::runtime_error(
+				"ERROR: Dimensions of A and B do not match"
+			);
 		if (out.cols != a.cols || out.rows != a.rows)
 			throw std::runtime_error("ERROR: Dim(OUT) != DIM(A)");
 
@@ -162,7 +164,9 @@ namespace mnistnn::linalg
 	void sub(Matrix& out, const Matrix& a, const Matrix& b)
 	{
 		if (a.cols != b.cols || a.rows != b.rows)
-			throw std::runtime_error("ERROR: Dimensions of A and B do not match");
+			throw std::runtime_error(
+				"ERROR: Dimensions of A and B do not match"
+			);
 		if (out.cols != a.cols || out.rows != a.rows)
 			throw std::runtime_error("ERROR: Dim(OUT) != DIM(A)");
 
