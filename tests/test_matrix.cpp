@@ -216,7 +216,7 @@ static void testSigmoidKnownValues()
     requireTrue(x.data[2] < 0.5f, "sigmoid(negative) should be > 0.5");
 }
 
-static void testSoftmaxSumsToOne()
+static void testSoftmaxSumsToOne(float tol)
 {
     Matrix x(3,1);
     x.data = { 1.0f, 2.0f, 3.0f };
@@ -225,7 +225,7 @@ static void testSoftmaxSumsToOne()
 
     float sum { x.data[0] + x.data[1] + x.data[2]};
 
-    requireNear(sum, 1.0f, 1e-5f, "softmax sum");
+    requireNear(sum, 1.0f, tol, "softmax sum");
     requireTrue(x.data[2] > x.data[1], "larger logit should have larger probability");
     requireTrue(x.data[1] > x.data[0], "larger logit should have larger probability");
 }
@@ -239,7 +239,7 @@ int main()
     testMatMulIncorrectInputShape();
     testMatMulIncorrectOutputShape();
     testSigmoidKnownValues();
-    testSoftmaxSumsToOne();
+    testSoftmaxSumsToOne(1e-10f);
 
     std::cout << "All matrix tests passed\n";
 
