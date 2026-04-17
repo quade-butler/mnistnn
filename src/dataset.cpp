@@ -25,30 +25,30 @@ namespace mnistnn
 		// Reorients pixel data so that it is right-side up.
 		// * NOTE: original EMNIST data is transposed and rotated.
 		static void reorientData(
-			Vector<Pixel>& imgPixels, 
-			Size numImages, 
-			Size dimSize) 
+			Vector<Pixel>& img_pixels, 
+			Size num_images, 
+			Size dim_size) 
 		{
 
-			if (imgPixels.size() != numImages * dimSize * dimSize)
+			if (img_pixels.size() != num_images * dim_size * dim_size)
 				throw std::runtime_error("ERROR: Image size mismatch");
 
-			Vector<Pixel> trafoData(numImages * dimSize * dimSize);
-			Size totalPx{ dimSize * dimSize };
+			Vector<Pixel> trafo_data(num_images * dim_size * dim_size);
+			Size total_pixels{ dim_size * dim_size };
 
-			for (Size i{ 0 }; i < numImages; ++i) 
+			for (Size i{ 0 }; i < num_images; ++i) 
 			{
-				for (Size r{ 0 }; r < dimSize; ++r) 
+				for (Size r{ 0 }; r < dim_size; ++r) 
 				{
-					for (Size c{ 0 }; c < dimSize; ++c) 
+					for (Size c{ 0 }; c < dim_size; ++c) 
 					{
-						trafoData[i * totalPx + r * dimSize + c] =
-							imgPixels[i * totalPx + c * dimSize + r];
+						trafo_data[i * total_pixels + r * dim_size + c] =
+							img_pixels[i * total_pixels + c * dim_size + r];
 					}
 				}
 			}
 
-			imgPixels.swap(trafoData);
+			img_pixels.swap(trafo_data);
 		}
 	} // end namespace
 
@@ -65,82 +65,82 @@ namespace mnistnn
 	// The third byte encodes the type of the data: 0x08 - unsigned byte.
 	// The fourth byte encodes the number of dimensions of the array.
 	// The sizes in each dimension are 4-byte (32-bit) integers (big-endian)
-	Dataset loadIdxDataset(const String& imagesPath, const String& labelsPath)
+	Dataset loadIdxDataset(const String& images_path, const String& labels_path)
 	{
 		// Images
-		std::ifstream imagesFile(imagesPath, std::ios::binary);
+		std::ifstream images_file(images_path, std::ios::binary);
 
-		if (!imagesFile)
+		if (!images_file)
 			throw std::runtime_error("ERROR: Cannot read images file.");
 
 		// allocate 2 bytes as per seekg() below
-		Vector<Pixel> magicHeader(2);
+		Vector<Pixel> magic_header(2);
 
 		// skip first 2 bytes
-		imagesFile.seekg(2, std::ios::beg);
-		imagesFile.read(
-			reinterpret_cast<char*>(magicHeader.data()), magicHeader.size()
+		images_file.seekg(2, std::ios::beg);
+		images_file.read(
+			reinterpret_cast<char*>(magic_header.data()), magic_header.size()
 		);
 
-		std::uint32_t numImages{};
-		std::uint32_t numRows{};
-		std::uint32_t numCols{};
+		std::uint32_t num_images{};
+		std::uint32_t num_rows{};
+		std::uint32_t num_cols{};
 
-		imagesFile.read(reinterpret_cast<char*>(&numImages), sizeof(numImages));
-		imagesFile.read(reinterpret_cast<char*>(&numRows), sizeof(numRows));
-		imagesFile.read(reinterpret_cast<char*>(&numCols), sizeof(numCols));
+		images_file.read(reinterpret_cast<char*>(&num_images), sizeof(num_images));
+		images_file.read(reinterpret_cast<char*>(&num_rows), sizeof(num_rows));
+		images_file.read(reinterpret_cast<char*>(&num_cols), sizeof(num_cols));
 
 		// dimension sizes are big endian -> swap to little endian and cast
-		numImages = static_cast<Size>(byteSwap32(numImages));
-		numRows   = static_cast<Size>(byteSwap32(numRows));
-		numCols	  = static_cast<Size>(byteSwap32(numCols));
+		num_images = static_cast<Size>(byteSwap32(num_images));
+		num_rows   = static_cast<Size>(byteSwap32(num_rows));
+		num_cols	  = static_cast<Size>(byteSwap32(num_cols));
 
-		Vector<Pixel> images(numImages * numRows * numCols);
+		Vector<Pixel> images(num_images * num_rows * num_cols);
 
-		imagesFile.read(
+		images_file.read(
 			reinterpret_cast<char*>(images.data()),
 			static_cast<std::streamsize>(images.size()));
 
-		reorientData(images, numImages, numRows);
+		reorientData(images, num_images, num_rows);
 
-		imagesFile.close();
+		images_file.close();
 
 		// Labels
-		std::ifstream labelsFile(labelsPath, std::ios::binary);
+		std::ifstream labels_file(labels_path, std::ios::binary);
 
-		if (!labelsFile)
+		if (!labels_file)
 			throw std::runtime_error("ERROR: Cannot read labels file.");
 
 		// skip first 2 bytes
-		labelsFile.seekg(2, std::ios::beg);
+		labels_file.seekg(2, std::ios::beg);
 
-		labelsFile.read(
-			reinterpret_cast<char*>(magicHeader.data()), magicHeader.size()
+		labels_file.read(
+			reinterpret_cast<char*>(magic_header.data()), magic_header.size()
 		);
 
-		if (magicHeader.back() != 1)
+		if (magic_header.back() != 1)
 			throw std::runtime_error(
 				"ERROR: Second dimension of labels needs to == 1."
 			);
 
-		std::uint32_t numLabels{};
+		std::uint32_t num_labels{};
 
-		labelsFile.read(reinterpret_cast<char*>(&numLabels), sizeof(numLabels));
+		labels_file.read(reinterpret_cast<char*>(&num_labels), sizeof(num_labels));
 
-		numLabels = static_cast<Size>(byteSwap32(numLabels));
+		num_labels = static_cast<Size>(byteSwap32(num_labels));
 
-		if (numImages != numLabels)
+		if (num_images != num_labels)
 			throw std::runtime_error(
 				"ERROR: Number of images doesn't match number of labels."
 			);
 
-		Vector<Pixel> labels(numLabels);
+		Vector<Pixel> labels(num_labels);
 
-		labelsFile.read(reinterpret_cast<char*>(labels.data()), labels.size());
+		labels_file.read(reinterpret_cast<char*>(labels.data()), labels.size());
 
-		labelsFile.close();
+		labels_file.close();
 
-		return Dataset{ numImages, numRows, numCols, images, labels };
+		return Dataset{ num_images, num_rows, num_cols, images, labels };
 	}
 
 	const Span<const Pixel> Dataset::image(Size i) const
@@ -152,12 +152,12 @@ namespace mnistnn
 		);
 	}
 
-	void Dataset::print(Size imgNum) const
+	void Dataset::print(Size image_number) const
 	{
-		std::cout << "Image number: " << imgNum << '\n';
-		std::cout << "Label: " << static_cast<int>(labels[imgNum]) << '\n';
+		std::cout << "Image number: " << image_number << '\n';
+		std::cout << "Label: " << static_cast<int>(labels[image_number]) << '\n';
 
-		const Span<const Pixel> img = image(imgNum);
+		const Span<const Pixel> img = image(image_number);
 
 		for (Size i{ 0 }; i < img.size(); ++i)
 		{

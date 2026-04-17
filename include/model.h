@@ -26,7 +26,7 @@ namespace mnistnn
 
 		Model() = default;
 		
-		explicit Model(Size hiddenNodes = 128);
+		explicit Model(Size hidden_nodes = 128);
 
 		Mat forward(Span<const Pixel> x) const;
 		Mat backprop(Span<const Pixel> x) const;

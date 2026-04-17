@@ -104,15 +104,14 @@ namespace mnistnn::linalg
 		}
 	} // end namespace
 
-	// out accumulates with +=, so must start zeroed out
+	// matMul:
+	// `out` accumulates with `+=`, so `out` must start zeroed out.
+	// A consequence is that you cannot call `matMul(a, a, b)`
 	void matMul(
 		Matrix& out, const Matrix& a, const Matrix& b, 
 		bool transpose_a, bool transpose_b
 	)
 	{
-		// zero out
-		fill(out, 0.0f);
-
 		Size a_rows{ transpose_a ? a.cols : a.rows };
 		Size a_cols{ transpose_a ? a.rows : a.cols };
 		Size b_rows{ transpose_b ? b.cols : b.rows };
@@ -122,6 +121,9 @@ namespace mnistnn::linalg
 			throw std::runtime_error("ERROR: a_cols != b_rows");
 		if (out.rows != a_rows || out.cols != b_cols)
 			throw std::runtime_error("ERROR: incorrect size of out matrix");
+
+		// zero out
+		fill(out, 0.0f);
 
 		std::uint32_t transpose{ 
 			static_cast<std::uint32_t>((transpose_a << 1) | (transpose_b << 0))

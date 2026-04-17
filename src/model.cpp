@@ -8,17 +8,17 @@ namespace mnistnn
 {
 	using Mat = linalg::Matrix;
 
-	Model::Model(Size hiddenNodes) 
-		: hidden{hiddenNodes}, W0{hidden, input}, b0{hidden, 1}
+	Model::Model(Size hidden_nodes) 
+		: hidden{hidden_nodes}, W0{hidden, input}, b0{hidden, 1}
 		, W1{output, hidden}, b1{output, 1}
 	{
-		float bound0{ std::sqrt(6.0f / (input + hidden)) };
-		float bound1{ std::sqrt(6.0f / (hidden + output)) };
+		float bound_0{ std::sqrt(6.0f / (input + hidden)) };
+		float bound_1{ std::sqrt(6.0f / (hidden + output)) };
 
 		// biases kept at zero
 
-		fillRandf(W0, bound0);
-		fillRandf(W1, bound1);
+		fillRandf(W0, bound_0);
+		fillRandf(W1, bound_1);
 	}
 	
 	// Converts Span<uint8_t> pixels to Matrix float, then normalizes

@@ -22,15 +22,15 @@ namespace mnistnn
 		Size  batch{ 64 };
 		float rate{ 0.01f };
 
-		bool shuffleEpoch{ true };
+		bool shuffle_epoch{ true };
 		//Size seed{ 12345 };
 	};
 
 	struct TrainStats {
-		float trainLoss{ 0.0f };
-		float trainAcc{ 0.0f };
-		float testLoss{ 0.0f };
-		float testAcc{ 0.0f };
+		float train_loss{ 0.0f };
+		float train_acc{ 0.0f };
+		float test_loss{ 0.0f };
+		float test_acc{ 0.0f };
 	};
 
 	void shuffle();

@@ -29,7 +29,7 @@ namespace mnistnn
 		void print(Size imgNum) const;
 	};
 
-	Dataset loadIdxDataset(const String& imagesPath, const String& labelsPath);
+	Dataset loadIdxDataset(const String& images_path, const String& labels_path);
 
 } // end namespace mnistnn
 

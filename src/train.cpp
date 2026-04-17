@@ -8,7 +8,7 @@ namespace mnistnn
 		
 		return 0.0f;
 	}
-	void train(Model& Model, const TrainConfig)
+	void train(Model& model, const TrainConfig)
 	{
 		/*
 		* 0. What inputs does train() need? Model? Config?
