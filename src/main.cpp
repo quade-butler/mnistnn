@@ -1,7 +1,7 @@
-#include "Base.h"
-#include "Matrix.h"
-#include "Dataset.h"
-#include "ModelNN.h"
+#include "base.h"
+#include "matrix.h"
+#include "dataset.h"
+#include "model.h"
 
 #include <iostream>
 #include <iomanip> // for std::setw() in write/print

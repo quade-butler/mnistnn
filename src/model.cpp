@@ -1,6 +1,6 @@
-#include "Base.h"
-#include "ModelNN.h"
-#include "Matrix.h"
+#include "base.h"
+#include "model.h"
+#include "matrix.h"
 
 #include <cmath>
 

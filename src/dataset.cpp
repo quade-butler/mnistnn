@@ -1,5 +1,5 @@
-#include "Base.h"
-#include "Dataset.h"
+#include "base.h"
+#include "dataset.h"
 
 #include <fstream>
 #include <cstdint>

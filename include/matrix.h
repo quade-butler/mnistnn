@@ -3,7 +3,7 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include "Base.h"
+#include "base.h"
 
 namespace mnistnn::linalg
 {

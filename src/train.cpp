@@ -1,5 +1,5 @@
-#include "Base.h"
-#include "TrainNN.h"
+#include "base.h"
+#include "train.h"
 
 namespace mnistnn
 {

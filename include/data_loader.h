@@ -5,8 +5,8 @@
 #ifndef DATA_LOADER_H
 #define DATA_LOADER_H
 
-#include "Base.h"
-#include "Dataset.h"
+#include "base.h"
+#include "dataset.h"
 
 namespace mnistnn
 {

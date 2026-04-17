@@ -7,10 +7,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(mnistnn_core
-    src/Dataset.cpp
-    src/Matrix.cpp
-    src/ModelNN.cpp
-    src/TrainNN.cpp
+    src/dataset.cpp
+    src/matrix.cpp
+    src/model.cpp
+    src/train.cpp
 )
 
 target_include_directories(mnistnn_core PUBLIC

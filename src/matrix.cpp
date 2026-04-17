@@ -1,5 +1,5 @@
-#include "Base.h"
-#include "Matrix.h"
+#include "base.h"
+#include "matrix.h"
 
 #include <cstdint>		// std::uint32_t
 #include <random>		// PRNG inside matFillRandf()

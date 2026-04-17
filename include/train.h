@@ -3,11 +3,11 @@
 #ifndef TRAIN_NN_H
 #define TRAIN_NN_H
 
-#include "Base.h"
-#include "Matrix.h"
-#include "Dataset.h"
-#include "DataLoader.h"
-#include "ModelNN.h"
+#include "base.h"
+#include "matrix.h"
+#include "dataset.h"
+#include "data_loader.h"
+#include "model.h"
 
 // TrainNN::Train needs to:
 //	- provide a train() function
