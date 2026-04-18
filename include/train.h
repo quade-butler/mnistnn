@@ -5,8 +5,6 @@
 
 #include "base.h"
 #include "matrix.h"
-#include "dataset.h"
-#include "data_loader.h"
 #include "model.h"
 
 // TrainNN::Train needs to:
