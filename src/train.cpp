@@ -5,9 +5,9 @@
 
 namespace mnistnn
 {
-	float crossEntropyLoss(const Matrix& logits, Pixel y)
+	float crossEntropyLoss(const Matrix& logits, Label target)
 	{
-		// add input shape handling for `logits`
+		// add input shape handling for `logits`, `target`
 		
 		float max_value{ *std::max_element(logits.data.begin(), logits.data.end()) };
 
@@ -17,9 +17,9 @@ namespace mnistnn
 			sum += std::exp(logits.data[i] - max_value);
 		}
 		
-		// loss = max_value + std::log();
+		float loss { max_value + std::log(sum) - logits.data[target] };
 
-		// return loss;
+		return loss;
 	}
 	void train(Model& model, const TrainConfig)
 	{

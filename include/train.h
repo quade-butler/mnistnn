@@ -33,7 +33,7 @@ namespace mnistnn
 
 	void shuffle();
 	void cost();
-	float crossEntropyLoss(const Matrix& logits, Pixel y);
+	float crossEntropyLoss(const Matrix& logits, Label target);
 	void train(Model& Model, const TrainConfig);
 
 } // end namespace mnistnn

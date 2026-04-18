@@ -22,7 +22,7 @@ namespace mnistnn
 	namespace 
 	{
 		// Converts Span<uint8_t> pixels to Matrix float, then normalizes
-		static Matrix inputToMatrix(Span<const Pixel> x)
+		Matrix inputToMatrix(Span<const Pixel> x)
 		{
 			Matrix out(x.size(), 1);
 

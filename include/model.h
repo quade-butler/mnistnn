@@ -6,6 +6,8 @@
 #include "base.h"
 #include "matrix.h"
 
+#include <string>
+
 namespace mnistnn
 {
 	using Matrix = linalg::Matrix;
@@ -34,9 +36,9 @@ namespace mnistnn
 		Matrix backprop(Span<const Pixel> x) const;
 
 		//
-		void save(const String& path) const;
+		void save(const std::string& path) const;
 		
-		static Model load(const String& path);
+		static Model load(const std::string& path);
 		
 	};
 

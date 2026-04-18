@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <stdexcept>
 
+#include <string>
 #include <iostream>
 #include <iomanip> // for std::setw() in write/print
 
@@ -32,7 +33,7 @@ namespace mnistnn
 			if (img_pixels.size() != num_images * dim_size * dim_size)
 				throw std::runtime_error("ERROR: Image size mismatch");
 
-			Vector<Pixel> trafo_data(num_images * dim_size * dim_size);
+			Vector<Pixel> transformed_img(num_images * dim_size * dim_size);
 			Size total_pixels{ dim_size * dim_size };
 
 			for (Size i{ 0 }; i < num_images; ++i) 
@@ -41,32 +42,19 @@ namespace mnistnn
 				{
 					for (Size c{ 0 }; c < dim_size; ++c) 
 					{
-						trafo_data[i * total_pixels + r * dim_size + c] =
+						transformed_img[i * total_pixels + r * dim_size + c] =
 							img_pixels[i * total_pixels + c * dim_size + r];
 					}
 				}
 			}
 
-			img_pixels.swap(trafo_data);
+			img_pixels.swap(transformed_img);
 		}
 	} // end namespace
 
-	// Loads .idx binary data.
-	// IDX files have a header consisting of a magic number, e.g.,
-	//
-	//  		  MAGIC	   |			 |			   |
-	//  	0x 00 00 08 03 | 00 00 EA 60 | 00 00 00 1C | 00 00 00 1C
-	//  	   -- -- -- -- | -- -- -- -- | -- -- -- -- | -- -- -- --
-	//  bytes: 1  2  3  4  | 	DIM 1	 |	DIM 2	   |	DIM 3
-	// 
-	// The magic number is 4 bytes long and decoded as:
-	// The first 2 bytes are always 0.
-	// The third byte encodes the type of the data: 0x08 - unsigned byte.
-	// The fourth byte encodes the number of dimensions of the array.
-	// The sizes in each dimension are 4-byte (32-bit) integers (big-endian)
 	Dataset loadIdxDataset(
-		const String& images_path, 
-		const String& labels_path)
+		const std::string& images_path, 
+		const std::string& labels_path)
 	{
 		// Images
 		std::ifstream images_file(images_path, std::ios::binary);
@@ -94,7 +82,7 @@ namespace mnistnn
 		// dimension sizes are big endian -> swap to little endian and cast
 		num_images = static_cast<Size>(byteSwap32(num_images));
 		num_rows   = static_cast<Size>(byteSwap32(num_rows));
-		num_cols	  = static_cast<Size>(byteSwap32(num_cols));
+		num_cols   = static_cast<Size>(byteSwap32(num_cols));
 
 		Vector<Pixel> images(num_images * num_rows * num_cols);
 
@@ -135,7 +123,7 @@ namespace mnistnn
 				"ERROR: Number of images doesn't match number of labels."
 			);
 
-		Vector<Pixel> labels(num_labels);
+		Vector<Label> labels(num_labels);
 
 		labels_file.read(reinterpret_cast<char*>(labels.data()), labels.size());
 

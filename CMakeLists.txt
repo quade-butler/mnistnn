@@ -29,19 +29,19 @@ target_link_libraries(mnistnn PRIVATE mnistnn_core)
 
 enable_testing()
 
-add_executable(mnistnn_tests
-    tests/test_matrix.cpp
-    tests/test_train.cpp
-)
+add_executable(test_matrix tests/test_matrix.cpp)
+target_link_libraries(test_matrix PRIVATE mnistnn_core)
+add_test(NAME test_matrix COMMAND test_matrix)
 
-target_link_libraries(mnistnn_tests PRIVATE mnistnn_core)
-
-add_test(NAME mnistnn_tests COMMAND mnistnn_tests)
+add_executable(test_train tests/test_train.cpp)
+target_link_libraries(test_train PRIVATE mnistnn_core)
+add_test(NAME test_train COMMAND test_train)
 
 if(MSVC)
     target_compile_options(mnistnn_core PRIVATE /W4)
     target_compile_options(mnistnn_tests PRIVATE /W4)
 else()
     target_compile_options(mnistnn_core PRIVATE -Wall -Wextra -Wpedantic)
-    target_compile_options(mnistnn_tests PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_options(test_matrix PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_options(test_train PRIVATE -Wall -Wextra -Wpedantic)
 endif()
