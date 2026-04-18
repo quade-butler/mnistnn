@@ -42,7 +42,7 @@ namespace mnistnn
 		Matrix z1(hidden, 1);
 		matMul(z1, W0, x);
 		add(z1, z1, b0);
-		sigmoid(z1);
+		Matrix a1 { sigmoid(z1) };
 
 		Matrix z2(output, 1);
 		matMul(z2, W1, z1);
