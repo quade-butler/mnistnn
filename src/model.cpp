@@ -7,11 +7,11 @@ namespace mnistnn
 	using Matrix = linalg::Matrix;
 
 	Model::Model(Size hidden_nodes) 
-		: hidden{hidden_nodes}, W0{hidden, input}, b0{hidden, 1}
-		, W1{output, hidden}, b1{output, 1}
+		: num_hidden{hidden_nodes}, W0{num_hidden, num_input}, b0{num_hidden, 1}
+		, W1{num_output, num_hidden}, b1{num_output, 1}
 	{
-		float bound_0{ std::sqrt(6.0f / (input + hidden)) };
-		float bound_1{ std::sqrt(6.0f / (hidden + output)) };
+		float bound_0{ std::sqrt(6.0f / (num_input + num_hidden)) };
+		float bound_1{ std::sqrt(6.0f / (num_hidden + num_output)) };
 
 		// biases kept at zero
 
@@ -35,16 +35,16 @@ namespace mnistnn
 		}
 	}  // end namespace
 
-	Matrix Model::forward(Span<const Pixel> xui8) const
+	Matrix Model::forward(Span<const Pixel> x_uint8) const
 	{
-		Matrix x{ inputToMatrix(xui8) };
+		Matrix x{ inputToMatrix(x_uint8) };
 		
-		Matrix z1(hidden, 1);
+		Matrix z1(num_hidden, 1);
 		matMul(z1, W0, x);
 		add(z1, z1, b0);
 		Matrix a1 { sigmoid(z1) };
 
-		Matrix z2(output, 1);
+		Matrix z2(num_output, 1);
 		matMul(z2, W1, z1);
 		add(z2, z2, b1);
 		

@@ -19,9 +19,9 @@ namespace mnistnn
 	class Model
 	{
 	public:
-		Size input{ 784 };
-		Size output{ 10 };
-		Size hidden{ 128 };
+		Size num_input{ 784 };
+		Size num_output{ 10 };
+		Size num_hidden{ 128 };
 		Matrix W0, b0, W1, b1;
 
 		Model() = default;
