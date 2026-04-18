@@ -1,6 +1,6 @@
 #include "base.h"
-#include "model.h"
 #include "matrix.h"
+#include "model.h"
 
 #include <cmath>
 
@@ -20,23 +20,23 @@ namespace mnistnn
 		fillRandf(W0, bound_0);
 		fillRandf(W1, bound_1);
 	}
-	
-	// Converts Span<uint8_t> pixels to Matrix float, then normalizes
-	static Mat inputToMatrix(Span<const Pixel> x)
+
+	namespace 
 	{
-		Mat out(x.size(), 1);
-
-		for (Size i{ 0 }; i < x.size(); ++i)
+		// Converts Span<uint8_t> pixels to Matrix float, then normalizes
+		static Mat inputToMatrix(Span<const Pixel> x)
 		{
-			out.data[i] = static_cast<float>(x[i]) / 255.0f;
-		}
+			Mat out(x.size(), 1);
 
-		return out;
+			for (Size i{ 0 }; i < x.size(); ++i)
+			{
+				out.data[i] = static_cast<float>(x[i]) / 255.0f;
+			}
+
+			return out;
+		}
 	}
 
-	// ModelNN::forward
-	// 	Input:	image  (type span<Pixel>)
-	// 	Output:	logits (type Matrix)
 	Mat Model::forward(Span<const Pixel> xui8) const
 	{
 		Mat x{ inputToMatrix(xui8) };

@@ -19,7 +19,6 @@ namespace mnistnn::linalg
 			out.data[i] = value;
 	}
 
-	// Fills matrix with uniformly distributed values between [-bound, bound]
 	void fillRandf(Matrix& out, float bound)
 	{
 		static thread_local std::mt19937 gen{ std::random_device{}() };
@@ -104,9 +103,6 @@ namespace mnistnn::linalg
 		}
 	} // end namespace
 
-	// matMul:
-	// `out` accumulates with `+=`, so `out` must start zeroed out.
-	// A consequence is that you cannot call `matMul(a, a, b)`
 	void matMul(
 		Matrix& out, const Matrix& a, const Matrix& b, 
 		bool transpose_a, bool transpose_b
@@ -177,40 +173,48 @@ namespace mnistnn::linalg
 		}
 	}
 
-	void sigmoid(Matrix& out)
+	Matrix sigmoid(const Matrix& x)
 	{
-		for (Size i{ 0 }; i < out.rows * out.cols; ++i)
+		Matrix out(x.rows, x.cols);
+		
+		for (Size i{ 0 }; i < x.rows * x.cols; ++i)
 		{
-			out.data[i] = 1 / (1 + std::exp(-out.data[i]));
+			out.data[i] = 1 / (1 + std::exp(-x.data[i]));
 		}
+
+		return out;
 	}
 
-	void relu(Matrix& out)
+	Matrix relu(const Matrix& out)
 	{
 
 	}
 
-	void softmax(Matrix& out)
+	Matrix softmax(const Matrix& x)
 	{
-		float maxVal{ *std::max_element(out.data.begin(), out.data.end()) };
+		Matrix out(x.rows, x.cols);
+		
+		float max_value{ *std::max_element(x.data.begin(), x.data.end()) };
 		float sum{ 0.0f };
-		for (Size i{ 0 }; i < out.rows * out.cols; ++i)
+		for (Size i{ 0 }; i < x.rows * x.cols; ++i)
 		{
-			out.data[i] = std::exp(out.data[i] - maxVal);
+			out.data[i] = std::exp(x.data[i] - max_value);
 			sum += out.data[i];
 		}
 
 		scale(out, 1.0f / sum);
+
+		return out;
 	}
 
-	void print(const Matrix& a)
+	void print(const Matrix& x)
 	{
-		for (Size i{ 0 }; i < a.rows; ++i)
+		for (Size i{ 0 }; i < x.rows; ++i)
 		{
 			std::cout << ' ';
-			for (Size j{ 0 }; j < a.cols; ++j)
+			for (Size j{ 0 }; j < x.cols; ++j)
 			{
-				std::cout << std::setw(12)<< a.data[i * a.cols + j] << ' ';
+				std::cout << std::setw(12)<< x.data[i * x.cols + j] << ' ';
 			}
 			std::cout << '\n';
 		}

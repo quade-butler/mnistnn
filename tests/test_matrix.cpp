@@ -207,13 +207,13 @@ static void testMatMulIncorrectOutputShape()
 static void testSigmoidKnownValues()
 {
     Matrix x(3,1);
-    x.data = { 0.0f, 2.0f, -2.0f};
+    x.data = { 0.0f, 2.0f, -2.0f };
 
-    sigmoid(x);
+    Matrix y { sigmoid(x) };
 
-    requireNear(x.data[0], 0.5f, 1e-5f, "sigmoid(0)");
-    requireTrue(x.data[1] > 0.5f, "sigmoid(positive) should be > 0.5");
-    requireTrue(x.data[2] < 0.5f, "sigmoid(negative) should be > 0.5");
+    requireNear(y.data[0], 0.5f, 1e-5f, "sigmoid(0)");
+    requireTrue(y.data[1] > 0.5f, "sigmoid(positive) should be > 0.5");
+    requireTrue(y.data[2] < 0.5f, "sigmoid(negative) should be > 0.5");
 }
 
 static void testSoftmaxSumsToOne(float tol)
@@ -221,13 +221,13 @@ static void testSoftmaxSumsToOne(float tol)
     Matrix x(3,1);
     x.data = { 1.0f, 2.0f, 3.0f };
     
-    softmax(x);
+    Matrix y { softmax(x) };
 
-    float sum { x.data[0] + x.data[1] + x.data[2]};
+    float sum { y.data[0] + y.data[1] + y.data[2]};
 
     requireNear(sum, 1.0f, tol, "softmax sum");
-    requireTrue(x.data[2] > x.data[1], "larger logit should have larger probability");
-    requireTrue(x.data[1] > x.data[0], "larger logit should have larger probability");
+    requireTrue(y.data[2] > y.data[1], "larger logit should have larger probability");
+    requireTrue(y.data[1] > y.data[0], "larger logit should have larger probability");
 }
 
 int main()

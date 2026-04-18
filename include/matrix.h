@@ -24,22 +24,29 @@ namespace mnistnn::linalg
 	};
 
 	void fill(Matrix& out, float value);
+
+	// Fills matrix with uniformly distributed values between [-bound, bound]
 	void fillRandf(Matrix& out, float bound);
 
 	void scale(Matrix& out, float scale);
 
+	// `out` accumulates with `+=`, so `out` must start zeroed out.
+	// A consequence is that you cannot call `matMul(a, a, b)`
 	void matMul(
 		Matrix& out, const Matrix& a, const Matrix& b,
 		bool transpose_a=false, bool transpose_b=false
 	);
+
 	void add(Matrix& out, const Matrix& a, const Matrix& b);
+
 	void sub(Matrix& out, const Matrix& a, const Matrix& b);
 	
-	void sigmoid(Matrix& out);
-	void relu(Matrix& out);
-	void softmax(Matrix& out);
 
-	void print(const Matrix& a);
+	Matrix sigmoid(const Matrix& x);
+	Matrix relu(const Matrix& x);
+	Matrix softmax(const Matrix& x);
+
+	void print(const Matrix& x);
 
 } // end namespace mnistnn
 

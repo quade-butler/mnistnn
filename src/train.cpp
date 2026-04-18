@@ -1,12 +1,27 @@
 #include "base.h"
+#include "matrix.h"
 #include "train.h"
+
+#include <cmath>
+#include <algorithm>
 
 namespace mnistnn
 {
-	float crossEntropyLogit(const Mat& logits, Pixel y)
+	float crossEntropyLoss(const Mat& logits, Pixel y)
 	{
+		// add input shape handling for `logits`
 		
-		return 0.0f;
+		float max_value{ *std::max_element(logits.data.begin(), logits.data.end()) };
+
+		float sum{ 0.0f };
+		for (Size i{ 0 }; i < logits.rows * logits.cols; ++i)
+		{
+			sum += std::exp(logits.data[i] - max_value);
+		}
+		
+		// loss = max_value + std::log();
+
+		// return loss;
 	}
 	void train(Model& model, const TrainConfig)
 	{

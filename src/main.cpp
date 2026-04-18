@@ -28,6 +28,8 @@ int main()
     
     Mat z = model.forward(test.image(0));
 
+    print(z);
+
     return 0;
 }
 

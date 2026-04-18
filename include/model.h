@@ -10,7 +10,7 @@ namespace mnistnn
 {
 	using Mat = linalg::Matrix;
 
-	// ModelNN::Model
+	// mnistnn::Model
 	// Neural network model with layers:
 	//  - input  (size 784)
 	//  - hidden (size variable, default 128)
@@ -28,11 +28,14 @@ namespace mnistnn
 		
 		explicit Model(Size hidden_nodes = 128);
 
+		// 
 		Mat forward(Span<const Pixel> x) const;
+
 		Mat backprop(Span<const Pixel> x) const;
 
 		//
 		void save(const String& path) const;
+		
 		static Model load(const String& path);
 		
 	};
