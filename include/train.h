@@ -14,7 +14,7 @@
 //	- provide a shuffle() function to shuffle data-label pairs
 namespace mnistnn
 {
-	using Mat	= linalg::Matrix;
+	using Matrix	= linalg::Matrix;
 
 	struct TrainConfig
 	{
@@ -35,7 +35,7 @@ namespace mnistnn
 
 	void shuffle();
 	void cost();
-	float crossEntropyLoss(const Mat& logits, Pixel y);
+	float crossEntropyLoss(const Matrix& logits, Pixel y);
 	void train(Model& Model, const TrainConfig);
 
 } // end namespace mnistnn

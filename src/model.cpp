@@ -1,12 +1,10 @@
-#include "base.h"
-#include "matrix.h"
 #include "model.h"
 
 #include <cmath>
 
 namespace mnistnn
 {
-	using Mat = linalg::Matrix;
+	using Matrix = linalg::Matrix;
 
 	Model::Model(Size hidden_nodes) 
 		: hidden{hidden_nodes}, W0{hidden, input}, b0{hidden, 1}
@@ -24,9 +22,9 @@ namespace mnistnn
 	namespace 
 	{
 		// Converts Span<uint8_t> pixels to Matrix float, then normalizes
-		static Mat inputToMatrix(Span<const Pixel> x)
+		static Matrix inputToMatrix(Span<const Pixel> x)
 		{
-			Mat out(x.size(), 1);
+			Matrix out(x.size(), 1);
 
 			for (Size i{ 0 }; i < x.size(); ++i)
 			{
@@ -35,18 +33,18 @@ namespace mnistnn
 
 			return out;
 		}
-	}
+	}  // end namespace
 
-	Mat Model::forward(Span<const Pixel> xui8) const
+	Matrix Model::forward(Span<const Pixel> xui8) const
 	{
-		Mat x{ inputToMatrix(xui8) };
+		Matrix x{ inputToMatrix(xui8) };
 		
-		Mat z1(hidden, 1);
+		Matrix z1(hidden, 1);
 		matMul(z1, W0, x);
 		add(z1, z1, b0);
 		sigmoid(z1);
 
-		Mat z2(output, 1);
+		Matrix z2(output, 1);
 		matMul(z2, W1, z1);
 		add(z2, z2, b1);
 		

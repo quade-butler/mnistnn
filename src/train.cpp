@@ -1,5 +1,3 @@
-#include "base.h"
-#include "matrix.h"
 #include "train.h"
 
 #include <cmath>
@@ -7,7 +5,7 @@
 
 namespace mnistnn
 {
-	float crossEntropyLoss(const Mat& logits, Pixel y)
+	float crossEntropyLoss(const Matrix& logits, Pixel y)
 	{
 		// add input shape handling for `logits`
 		

@@ -4,7 +4,6 @@
 #include "model.h"
 
 #include <iostream>
-#include <iomanip> // for std::setw() in write/print
 
 #define PRINT(var) (std::cout << var << '\n')
 

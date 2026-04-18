@@ -31,6 +31,7 @@ enable_testing()
 
 add_executable(mnistnn_tests
     tests/test_matrix.cpp
+    tests/test_train.cpp
 )
 
 target_link_libraries(mnistnn_tests PRIVATE mnistnn_core)

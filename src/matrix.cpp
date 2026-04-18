@@ -1,4 +1,3 @@
-#include "base.h"
 #include "matrix.h"
 
 #include <cstdint>		// std::uint32_t
