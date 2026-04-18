@@ -19,4 +19,6 @@ int main()
     testCrossEntropyLoss();
 
     std::cout << "All training tests passed\n";
+
+    return 0;
 }
