@@ -31,7 +31,7 @@ static void requireTrue(bool condition, const char* msg)
     }
 }
 
-void testCrossEntropyLoss(float tol)
+static void testCrossEntropyLoss(float tol)
 {
     Label target{ 1 };
 

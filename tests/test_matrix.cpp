@@ -204,14 +204,14 @@ static void testMatMulIncorrectOutputShape()
     }
 }
 
-static void testSigmoidKnownValues()
+static void testSigmoidKnownValues(float tol)
 {
     Matrix x(3,1);
     x.data = { 0.0f, 2.0f, -2.0f };
 
     Matrix y{ sigmoid(x) };
 
-    requireNear(y.data[0], 0.5f, 1e-5f, "sigmoid(0)");
+    requireNear(y.data[0], 0.5f, tol, "sigmoid(0)");
     requireTrue(y.data[1] > 0.5f, "sigmoid(positive) should be > 0.5");
     requireTrue(y.data[2] < 0.5f, "sigmoid(negative) should be > 0.5");
 }
@@ -230,6 +230,25 @@ static void testSoftmaxSumsToOne(float tol)
     requireTrue(y.data[1] > y.data[0], "larger logit should have larger probability");
 }
 
+static void testReluKnownValues(float tol)
+{
+    Matrix x(2, 3);
+    x.data = {
+        -2.0f, -0.5f, 0.0f,
+         1.0f, 3.5f, 8.0f
+    };
+
+    Matrix y{ relu(x) };
+
+    requireTrue(y.rows == 2 && y.cols == 3, "relu should preserve shape");
+    requireNear(y.data[0], 0.0f, tol, "relu(-2)");
+    requireNear(y.data[1], 0.0f, tol, "relu(-0.5)");
+    requireNear(y.data[2], 0.0f, tol, "relu(0)");
+    requireNear(y.data[3], 1.0f, tol, "relu(1)");
+    requireNear(y.data[4], 3.5f, tol, "relu(3.5)");
+    requireNear(y.data[5], 8.0f, tol, "relu(8)");
+}
+
 int main()
 {
     testMatMulKnownValues(1e-6f);
@@ -238,8 +257,9 @@ int main()
     testMatMulTransposeTT(1e-6f);
     testMatMulIncorrectInputShape();
     testMatMulIncorrectOutputShape();
-    testSigmoidKnownValues();
+    testSigmoidKnownValues(1e-6f);
     testSoftmaxSumsToOne(1e-6f);
+    testReluKnownValues(1e-6f);
 
     std::cout << "All matrix tests passed\n";
 

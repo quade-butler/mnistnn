@@ -34,7 +34,7 @@ static void requireTrue(bool condition, const char* msg)
     }
 }
 
-void testModelForward(float tol)
+static void testModelForward(float tol)
 {
     Model model(2);
 
@@ -67,7 +67,7 @@ void testModelForward(float tol)
     requireNear(logits.data[1], -1.0f * h0 + 4.0f * h1, tol, "logit 1");
 }
 
-void testModelForwardIncorrectInputShape()
+static void testModelForwardIncorrectInputShape()
 {
     Model model(2);
 
@@ -94,6 +94,6 @@ int main()
     testModelForwardIncorrectInputShape();
 
     std::cout << "All model tests passed\n";
-    
+
     return 0;
 }

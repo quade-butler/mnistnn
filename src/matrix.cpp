@@ -184,9 +184,15 @@ namespace mnistnn::linalg
 		return out;
 	}
 
-	Matrix relu(const Matrix& out)
+	Matrix relu(const Matrix& x)
 	{
-
+		Matrix out(x.rows, x.cols);
+		for (Size i{ 0 }; i < x.rows * x.cols; ++i)
+		{
+			float value { x.data[i] };
+			out.data[i] = (value > 0) ? value : 0.0f;
+		}
+		return out;
 	}
 
 	Matrix softmax(const Matrix& x)

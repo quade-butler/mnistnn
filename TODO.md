@@ -2,14 +2,15 @@
 - matMul: currently accumulates into `out`; only works when `out` starts at zero.
     - COMPLETE: made it zero out
 - tests:
-    - cross-entropy with logits
     COMPLETE:
+    - cross-entropy with logits
     - matMul with known values
     - transposed matMul
     - sigmoid known values; `sigmoid(0) == 0.5`; `sigmoid(positive) > 0.5`
     - softmax sums to approx 1
 - implement loss before gradients (use numerically stable form)
 - avoid softmax in `ModelNN::forward`. Keep softmax in loss/evaluation.
+    - COMPLETE
 - Auto diff: don't do full general autodiff; implement small matrix-level autodiff that supports
     - matMul
     - matAdd
@@ -23,7 +24,7 @@
 - ctest --test-dir build --output-on-failure
 
 # Build only test exe
-- cmake --build build --target mnistnn_tests
+- cmake --build build --target <test_name>
 
 # Debugging
 - cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
