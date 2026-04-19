@@ -41,7 +41,6 @@ namespace mnistnn::linalg
 
 	void sub(Matrix& out, const Matrix& a, const Matrix& b);
 	
-
 	Matrix sigmoid(const Matrix& x);
 	Matrix relu(const Matrix& x);
 	Matrix softmax(const Matrix& x);

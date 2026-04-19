@@ -12,6 +12,14 @@ namespace mnistnn
 {
 	using Matrix = linalg::Matrix;
 
+	struct ForwardCache
+	{
+		Matrix x;
+		Matrix z1;
+		Matrix a1;
+		Matrix logits;
+	};
+
 	// mnistnn::Model
 	// Neural network model with layers:
 	//  - input  (size 784)
@@ -32,6 +40,7 @@ namespace mnistnn
 
 		// 
 		Matrix forward(Span<const Pixel> x) const;
+		ForwardCache forwardWithCache(Span<const Pixel> x) const;
 
 		Matrix backprop(Span<const Pixel> x) const;
 
@@ -39,9 +48,7 @@ namespace mnistnn
 		void save(const std::string& path) const;
 		
 		static Model load(const std::string& path);
-		
 	};
-
 
 } // end namespace mnistnn
 

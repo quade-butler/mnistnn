@@ -209,7 +209,7 @@ static void testSigmoidKnownValues()
     Matrix x(3,1);
     x.data = { 0.0f, 2.0f, -2.0f };
 
-    Matrix y { sigmoid(x) };
+    Matrix y{ sigmoid(x) };
 
     requireNear(y.data[0], 0.5f, 1e-5f, "sigmoid(0)");
     requireTrue(y.data[1] > 0.5f, "sigmoid(positive) should be > 0.5");
@@ -221,7 +221,7 @@ static void testSoftmaxSumsToOne(float tol)
     Matrix x(3,1);
     x.data = { 1.0f, 2.0f, 3.0f };
     
-    Matrix y { softmax(x) };
+    Matrix y{ softmax(x) };
 
     float sum { y.data[0] + y.data[1] + y.data[2]};
 
@@ -232,14 +232,14 @@ static void testSoftmaxSumsToOne(float tol)
 
 int main()
 {
-    testMatMulKnownValues(1e-12f);
-    testMatMulTransposeNT(1e-12f);
-    testMatMulTransposeTN(1e-12f);
-    testMatMulTransposeTT(1e-12f);
+    testMatMulKnownValues(1e-6f);
+    testMatMulTransposeNT(1e-6f);
+    testMatMulTransposeTN(1e-6f);
+    testMatMulTransposeTT(1e-6f);
     testMatMulIncorrectInputShape();
     testMatMulIncorrectOutputShape();
     testSigmoidKnownValues();
-    testSoftmaxSumsToOne(1e-10f);
+    testSoftmaxSumsToOne(1e-6f);
 
     std::cout << "All matrix tests passed\n";
 

@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <stdexcept>
 
 using mnistnn::linalg::Matrix;
 using mnistnn::Label;
@@ -48,14 +49,14 @@ void testCrossEntropyLoss(float tol)
         0.0f
     };
 
-    float loss { crossEntropyLoss(logits, target)};
-    float expected_loss { std::log(std::exp(2) + 9 * std::exp(0)) - 2 };
+    float loss{ crossEntropyLoss(logits, target)};
+    float expected_loss{ std::log(std::exp(2) + 9 * std::exp(0)) - 2 };
     requireNear(loss, expected_loss, tol, "crossEntropyLoss known logits");
 }
 
 int main()
 {
-    testCrossEntropyLoss(1e-5f);
+    testCrossEntropyLoss(1e-6f);
 
     std::cout << "All training tests passed\n";
 

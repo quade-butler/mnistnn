@@ -31,9 +31,10 @@ namespace mnistnn
 		float test_acc{ 0.0f };
 	};
 
+	float crossEntropyLoss(const Matrix& logits, Label target);
+
 	void shuffle();
 	void cost();
-	float crossEntropyLoss(const Matrix& logits, Label target);
 	void train(Model& Model, const TrainConfig);
 
 } // end namespace mnistnn

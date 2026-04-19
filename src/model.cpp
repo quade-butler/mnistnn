@@ -1,6 +1,8 @@
 #include "model.h"
 
 #include <cmath>
+#include <iostream>
+#include <stdexcept>
 
 namespace mnistnn
 {
@@ -21,7 +23,7 @@ namespace mnistnn
 
 	namespace 
 	{
-		// Converts Span<uint8_t> pixels to Matrix float, then normalizes
+		// Converts Span<Pixel> pixels to Matrix float, then normalizes
 		Matrix inputToMatrix(Span<const Pixel> x)
 		{
 			Matrix out(x.size(), 1);
@@ -35,20 +37,32 @@ namespace mnistnn
 		}
 	}  // end namespace
 
-	Matrix Model::forward(Span<const Pixel> x_uint8) const
+	Matrix Model::forward(Span<const Pixel> x) const
 	{
-		Matrix x{ inputToMatrix(x_uint8) };
+		ForwardCache cache { forwardWithCache(x) };
+		return cache.logits;
+	}
+
+	ForwardCache Model::forwardWithCache(Span<const Pixel> x) const
+	{
+		if (x.size() != num_input)
+		{
+			std::cerr << "Expected 784 pixels. Got " << x.size() << '\n';
+			throw std::invalid_argument("ERROR: Invalid argument.");
+		}
+		
+		Matrix x_float{ inputToMatrix(x) };
 		
 		Matrix z1(num_hidden, 1);
-		matMul(z1, W0, x);
+		matMul(z1, W0, x_float);
 		add(z1, z1, b0);
-		Matrix a1 { sigmoid(z1) };
+		Matrix a1{ sigmoid(z1) };
 
 		Matrix z2(num_output, 1);
-		matMul(z2, W1, z1);
+		matMul(z2, W1, a1);
 		add(z2, z2, b1);
 		
-		return z2; // logits
+		return ForwardCache {x_float, z1, a1, z2};
 	}
 
 } // end namespace mnistnn
