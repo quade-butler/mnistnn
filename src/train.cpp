@@ -17,9 +17,9 @@ namespace mnistnn
 			sum += std::exp(logits.data[i] - max_value);
 		}
 		
-		float loss { max_value + std::log(sum) - logits.data[target] };
+		// float loss { max_value + std::log(sum) - logits.data[static_cast<Size>(target)] };
 
-		return loss;
+		return max_value + std::log(sum) - logits.data[static_cast<Size>(target)];
 	}
 	void train(Model& model, const TrainConfig)
 	{

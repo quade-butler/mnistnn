@@ -2,10 +2,10 @@
 - matMul: currently accumulates into `out`; only works when `out` starts at zero.
     - COMPLETE: made it zero out
 - tests:
-    - transposed matMul
     - cross-entropy with logits
     COMPLETE:
     - matMul with known values
+    - transposed matMul
     - sigmoid known values; `sigmoid(0) == 0.5`; `sigmoid(positive) > 0.5`
     - softmax sums to approx 1
 - implement loss before gradients (use numerically stable form)
