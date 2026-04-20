@@ -6,6 +6,7 @@
 #include "base.h"
 #include "matrix.h"
 #include "model.h"
+#include "dataset.h"
 
 // TrainNN::Train needs to:
 //	- provide a train() function
@@ -21,7 +22,6 @@ namespace mnistnn
 		float rate{ 0.01f };
 
 		bool shuffle_epoch{ true };
-		//Size seed{ 12345 };
 	};
 
 	struct TrainStats {
@@ -31,12 +31,15 @@ namespace mnistnn
 		float test_acc{ 0.0f };
 	};
 
-	float crossEntropyLoss(const Matrix& logits, Label target);
-
+	TrainStats train(
+		Model& model,
+		const Dataset& train_data, 
+		const TrainConfig& config
+	);
+	
 	void shuffle();
-	void cost();
-	void train(Model& Model, const TrainConfig);
 
+	float crossEntropyLoss(const Matrix& logits, Label target);
 } // end namespace mnistnn
 
 #endif // TRAIN_NN_H

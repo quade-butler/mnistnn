@@ -20,6 +20,13 @@ namespace mnistnn
 		Matrix logits;
 	};
 
+	struct ModelGradients {
+		Matrix dW0;
+		Matrix db0;
+		Matrix dW1;
+		Matrix db1;
+	};
+
 	// mnistnn::Model
 	// Neural network model with layers:
 	//  - input  (size 784)
@@ -38,13 +45,18 @@ namespace mnistnn
 		
 		explicit Model(Size hidden_nodes = 128);
 
-		// 
+		
 		Matrix forward(Span<const Pixel> x) const;
+		
 		ForwardCache forwardWithCache(Span<const Pixel> x) const;
+		
+		Matrix crossEntropyGradLogits(const Matrix& logits, Label target);
 
-		Matrix backprop(Span<const Pixel> x) const;
+		ModelGradients backward(
+			const ForwardCache& cache, 
+			const Matrix& dlogits
+		) const;
 
-		//
 		void save(const std::string& path) const;
 		
 		static Model load(const std::string& path);

@@ -1,6 +1,6 @@
 // DATALOADER
 // Loads images via an index with random shuffling
-// Used when passing images to ModelNN.feedforward()
+// Used when passing images to Model.feedforward()
 
 #ifndef DATA_LOADER_H
 #define DATA_LOADER_H

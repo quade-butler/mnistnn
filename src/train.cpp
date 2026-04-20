@@ -1,5 +1,6 @@
 #include "train.h"
 
+#include <stdexcept>
 #include <cmath>
 #include <algorithm>
 
@@ -7,8 +8,24 @@ namespace mnistnn
 {
 	float crossEntropyLoss(const Matrix& logits, Label target)
 	{
-		// add input shape handling for `logits`, `target`
-		
+
+		if ( !(logits.rows == 10 && logits.cols == 1) )
+		{
+			throw std::invalid_argument("Logits must be 10 x 1");
+		}
+		if ( !(logits.data.size() == logits.rows * logits.cols) )
+		{
+			throw std::invalid_argument("Logits data size must be consistent with its Matrix size");
+		}
+		if ( !(target < logits.rows) )
+		{
+			throw std::invalid_argument("Target must be a digit from 0 to 9");
+		}
+		if (logits.data.empty())
+		{
+			throw std::invalid_argument("Logits must be non-empty");
+		}
+
 		float max_value{ *std::max_element(logits.data.begin(), logits.data.end()) };
 
 		float sum{ 0.0f };
@@ -16,12 +33,11 @@ namespace mnistnn
 		{
 			sum += std::exp(logits.data[i] - max_value);
 		}
-		
-		// float loss { max_value + std::log(sum) - logits.data[static_cast<Size>(target)] };
 
 		return max_value + std::log(sum) - logits.data[static_cast<Size>(target)];
 	}
-	void train(Model& model, const TrainConfig)
+	
+	TrainStats train(Model& model, const Dataset& train_data, const TrainConfig& config)
 	{
 		/*
 		* 0. What inputs does train() need? Model? Config?
