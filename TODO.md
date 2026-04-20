@@ -1,22 +1,22 @@
 # TODO
-- matMul: currently accumulates into `out`; only works when `out` starts at zero.
-    - COMPLETE: made it zero out
-- tests:
-    COMPLETE:
-    - cross-entropy with logits
-    - matMul with known values
-    - transposed matMul
-    - sigmoid known values; `sigmoid(0) == 0.5`; `sigmoid(positive) > 0.5`
-    - softmax sums to approx 1
-- implement loss before gradients (use numerically stable form)
-- avoid softmax in `ModelNN::forward`. Keep softmax in loss/evaluation.
-    - COMPLETE
+- mnistnn::Matrix can have its data changed to arbitrary shape despite the designed shape from (rows, cols).
 - Auto diff: don't do full general autodiff; implement small matrix-level autodiff that supports
     - matMul
     - matAdd
     - matSigmoid
     - crossEntropyWithLogits
     - maybe matScale
+
+# COMPLETE
+- matMul: currently accumulates into `out`; only works when `out` starts at zero.
+- avoid softmax in `ModelNN::forward`. Keep softmax in loss/evaluation.
+- implement loss before gradients (use numerically stable form)
+- tests:
+    - cross-entropy with logits
+    - matMul with known values
+    - transposed matMul
+    - sigmoid known values; `sigmoid(0) == 0.5`; `sigmoid(positive) > 0.5`
+    - softmax sums to approx 1
 
 # Building/Running
 - cmake -S . -B build

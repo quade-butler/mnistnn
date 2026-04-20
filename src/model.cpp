@@ -4,6 +4,8 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "matrix.h"
+
 namespace mnistnn
 {
 	using Matrix = linalg::Matrix;

@@ -2,8 +2,8 @@
 #define BASE_H
 
 #include <cstdint> // std::uint8_t, uint32_t
-#include <vector>  // std::vector, std::size_t
 #include <span>
+#include <vector>  // std::vector, std::size_t
 
 namespace mnistnn
 {

@@ -1,12 +1,13 @@
 #include "dataset.h"
 
-#include <fstream>
 #include <cstdint>
-#include <stdexcept>
-
-#include <string>
-#include <iostream>
+#include <fstream>
 #include <iomanip> // for std::setw() in write/print
+#include <iostream>
+#include <stdexcept>
+#include <string>
+
+#include "base.h"
 
 
 namespace mnistnn

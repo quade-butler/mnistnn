@@ -1,8 +1,12 @@
 #include "train.h"
 
-#include <stdexcept>
-#include <cmath>
 #include <algorithm>
+#include <cmath>
+#include <stdexcept>
+
+#include "dataset.h"
+#include "matrix.h"
+#include "model.h"
 
 namespace mnistnn
 {

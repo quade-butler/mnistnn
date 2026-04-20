@@ -4,9 +4,9 @@
 #ifndef DATASET_H
 #define DATASET_H
 
-#include "base.h"
-
 #include <string>
+
+#include "base.h"
 
 namespace mnistnn
 {

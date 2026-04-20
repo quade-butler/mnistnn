@@ -4,9 +4,9 @@
 #define TRAIN_NN_H
 
 #include "base.h"
+#include "dataset.h"
 #include "matrix.h"
 #include "model.h"
-#include "dataset.h"
 
 // TrainNN::Train needs to:
 //	- provide a train() function

@@ -3,10 +3,10 @@
 #ifndef MODEL_NN_H
 #define MODEL_NN_H
 
+#include <string>
+
 #include "base.h"
 #include "matrix.h"
-
-#include <string>
 
 namespace mnistnn
 {

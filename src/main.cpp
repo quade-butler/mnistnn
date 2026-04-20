@@ -1,10 +1,10 @@
-#include "base.h"
-#include "matrix.h"
-#include "dataset.h"
-#include "model.h"
-
 #include <string>
 #include <iostream>
+
+#include "base.h"
+#include "dataset.h"
+#include "matrix.h"
+#include "model.h"
 
 #define PRINT(var) (std::cout << var << '\n')
 

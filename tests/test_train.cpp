@@ -1,11 +1,12 @@
-#include "base.h"
-#include "matrix.h"
 #include "train.h"
 
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
 #include <string>
+
+#include "base.h"
+#include "matrix.h"
 
 using mnistnn::linalg::Matrix;
 using mnistnn::Label;

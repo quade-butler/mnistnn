@@ -1,10 +1,11 @@
-#include "base.h"
-#include "matrix.h"
 #include "model.h"
 
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
+
+#include "base.h"
+#include "matrix.h"
 
 using mnistnn::Pixel;
 using mnistnn::Vector;

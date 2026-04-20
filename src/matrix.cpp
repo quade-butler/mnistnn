@@ -1,12 +1,13 @@
 #include "matrix.h"
 
-#include <cstdint>		// std::uint32_t
-#include <random>		// PRNG inside matFillRandf()
-#include <algorithm>	// std::max_element
-#include <cmath>		// transcendental functions
-
+#include <algorithm>  // std::max_element
+#include <cmath>	  // transcendental functions
+#include <cstdint>	  // std::uint32_t
+#include <iomanip>    // std::setw() in write/print
 #include <iostream>
-#include <iomanip> // for std::setw() in write/print
+#include <random>	  // PRNG inside matFillRandf()
+
+#include "base.h"
 
 
 namespace mnistnn::linalg
