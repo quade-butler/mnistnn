@@ -9,7 +9,6 @@
 
 #include "base.h"
 
-
 namespace mnistnn::linalg
 {
 
