@@ -29,6 +29,9 @@ namespace mnistnn::linalg
 
 	void scale(Matrix& out, float scale)
 	{
+		if (out.data.empty())
+			throw std::invalid_argument("scale: cannot scale out matrix when empty");
+
 		for (Size i{ 0 }; i < out.rows * out.cols; ++i)
 		{
 			out.data[i] *= scale;
@@ -113,9 +116,9 @@ namespace mnistnn::linalg
 		Size b_cols{ transpose_b ? b.rows : b.cols };
 
 		if (a_cols != b_rows) 
-			throw std::invalid_argument("ERROR: a_cols != b_rows");
+			throw std::invalid_argument("matMul: a_cols != b_rows");
 		if (out.rows != a_rows || out.cols != b_cols)
-			throw std::invalid_argument("ERROR: incorrect size of out matrix");
+			throw std::invalid_argument("matMul: invalid size of out matrix");
 
 		// zero out
 		fill(out, 0.0f);
@@ -142,12 +145,16 @@ namespace mnistnn::linalg
 
 	void add(Matrix& out, const Matrix& a, const Matrix& b)
 	{
+		if (a.data.empty() || b.data.empty())
+			throw std::invalid_argument(
+				"add: cannot perform matrix addition with empty input matrix"
+			);
 		if (a.cols != b.cols || a.rows != b.rows)
 			throw std::runtime_error(
-				"ERROR: Dimensions of A and B do not match"
+				"add: dimensions of A and B do not match"
 			);
 		if (out.cols != a.cols || out.rows != a.rows)
-			throw std::runtime_error("ERROR: Dim(OUT) != DIM(A)");
+			throw std::runtime_error("add: Dim(OUT) != DIM(A)");
 
 		Size size{ out.cols * out.rows };
 		for (Size i{ 0 }; i < size; ++i)
@@ -158,12 +165,14 @@ namespace mnistnn::linalg
 
 	void sub(Matrix& out, const Matrix& a, const Matrix& b)
 	{
-		if (a.cols != b.cols || a.rows != b.rows)
-			throw std::runtime_error(
-				"ERROR: Dimensions of A and B do not match"
+		if (a.data.empty() || b.data.empty())
+			throw std::invalid_argument(
+				"sub: cannot perform matrix subtraction with empty input matrix"
 			);
+		if (a.cols != b.cols || a.rows != b.rows)
+			throw std::invalid_argument("sub: dimensions of A and B do not match");
 		if (out.cols != a.cols || out.rows != a.rows)
-			throw std::runtime_error("ERROR: Dim(OUT) != DIM(A)");
+			throw std::invalid_argument("sub: Dim(OUT) != DIM(A)");
 
 		Size size{ out.cols * out.rows };
 		for (Size i{ 0 }; i < size; ++i)
@@ -174,6 +183,11 @@ namespace mnistnn::linalg
 
 	Matrix sigmoid(const Matrix& x)
 	{
+		if (x.data.empty())
+			throw std::invalid_argument(
+				"sigmoid: cannot compute Sigmoid using empty input matrix"
+			);
+
 		Matrix out(x.rows, x.cols);
 		
 		for (Size i{ 0 }; i < x.rows * x.cols; ++i)
@@ -186,21 +200,34 @@ namespace mnistnn::linalg
 
 	Matrix relu(const Matrix& x)
 	{
+		if (x.data.empty())
+			throw std::invalid_argument(
+				"relu: cannot compute ReLu using empty input matrix"
+			);
+
 		Matrix out(x.rows, x.cols);
+
 		for (Size i{ 0 }; i < x.rows * x.cols; ++i)
 		{
 			float value { x.data[i] };
 			out.data[i] = (value > 0) ? value : 0.0f;
 		}
+
 		return out;
 	}
 
 	Matrix softmax(const Matrix& x)
 	{
+		if (x.data.empty())
+			throw std::invalid_argument(
+				"softmax: cannot compute Softmax using empty input matrix"
+			);
+
 		Matrix out(x.rows, x.cols);
 		
 		float max_value{ *std::max_element(x.data.begin(), x.data.end()) };
 		float sum{ 0.0f };
+
 		for (Size i{ 0 }; i < x.rows * x.cols; ++i)
 		{
 			out.data[i] = std::exp(x.data[i] - max_value);
@@ -214,6 +241,12 @@ namespace mnistnn::linalg
 
 	void print(const Matrix& x)
 	{
+		if (x.data.empty())
+		{
+			std::cout << "Cannot print. Matrix is empty.";
+			return void();
+		}
+		
 		for (Size i{ 0 }; i < x.rows; ++i)
 		{
 			std::cout << ' ';
