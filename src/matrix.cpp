@@ -14,17 +14,17 @@ namespace mnistnn::linalg
 
 	void fill(Matrix& out, float value)
 	{
-		for (Size i{ 0 }; i < out.data.size(); ++i)
-			out.data[i] = value;
+		for (auto &num : out.data)
+			num = value;
 	}
 
 	void fillRandf(Matrix& out, float bound)
 	{
 		static thread_local std::mt19937 gen{ std::random_device{}() };
 		std::uniform_real_distribution<float> dis(-bound, bound);
-
-		for (Size i{ 0 }; i < out.data.size(); ++i)
-			out.data[i] = dis(gen);
+		
+		for (auto &num : out.data)
+			num = dis(gen);
 	}
 
 	void scale(Matrix& out, float scale)
@@ -32,10 +32,8 @@ namespace mnistnn::linalg
 		if (out.data.empty())
 			throw std::invalid_argument("scale: cannot scale out matrix when empty");
 
-		for (Size i{ 0 }; i < out.rows * out.cols; ++i)
-		{
-			out.data[i] *= scale;
-		}
+		for (auto &num : out.data)
+			num *= scale;
 	}
 
 	namespace
@@ -156,8 +154,7 @@ namespace mnistnn::linalg
 		if (out.cols != a.cols || out.rows != a.rows)
 			throw std::runtime_error("add: Dim(OUT) != DIM(A)");
 
-		Size size{ out.cols * out.rows };
-		for (Size i{ 0 }; i < size; ++i)
+		for (Size i{ 0 }; i < out.data.size(); ++i)
 		{
 			out.data[i] = a.data[i] + b.data[i];
 		}
@@ -174,8 +171,7 @@ namespace mnistnn::linalg
 		if (out.cols != a.cols || out.rows != a.rows)
 			throw std::invalid_argument("sub: Dim(OUT) != DIM(A)");
 
-		Size size{ out.cols * out.rows };
-		for (Size i{ 0 }; i < size; ++i)
+		for (Size i{ 0 }; i < out.data.size(); ++i)
 		{
 			out.data[i] = a.data[i] - b.data[i];
 		}
@@ -190,7 +186,7 @@ namespace mnistnn::linalg
 
 		Matrix out(x.rows, x.cols);
 		
-		for (Size i{ 0 }; i < x.rows * x.cols; ++i)
+		for (Size i{ 0 }; i < out.data.size(); ++i)
 		{
 			out.data[i] = 1 / (1 + std::exp(-x.data[i]));
 		}
@@ -207,7 +203,7 @@ namespace mnistnn::linalg
 
 		Matrix out(x.rows, x.cols);
 
-		for (Size i{ 0 }; i < x.rows * x.cols; ++i)
+		for (Size i{ 0 }; i < out.data.size(); ++i)
 		{
 			float value { x.data[i] };
 			out.data[i] = (value > 0) ? value : 0.0f;
@@ -228,7 +224,7 @@ namespace mnistnn::linalg
 		float max_value{ *std::max_element(x.data.begin(), x.data.end()) };
 		float sum{ 0.0f };
 
-		for (Size i{ 0 }; i < x.rows * x.cols; ++i)
+		for (Size i{ 0 }; i < out.data.size(); ++i)
 		{
 			out.data[i] = std::exp(x.data[i] - max_value);
 			sum += out.data[i];

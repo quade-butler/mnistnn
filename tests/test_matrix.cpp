@@ -1,6 +1,7 @@
 #include "matrix.h"
 
 #include <cmath>
+#include <numeric>
 #include <iostream>
 #include <stdexcept>
 
@@ -249,6 +250,57 @@ static void testReluKnownValues(float tol)
     requireNear(y.data[5], 8.0f, tol, "relu(8)");
 }
 
+static void testFill(float tol)
+{
+    Matrix x(2,3);
+    fill(x, 1000.0f);
+
+    requireNear(x.data[0], 1000.0f, tol, "fill[0]");
+    requireNear(x.data[1], 1000.0f, tol, "fill[1]");
+    requireNear(x.data[2], 1000.0f, tol, "fill[2]");
+    requireNear(x.data[3], 1000.0f, tol, "fill[3]");
+    requireNear(x.data[4], 1000.0f, tol, "fill[4]");
+    requireNear(x.data[5], 1000.0f, tol, "fill[5]");
+}
+
+static void testFillRandf(float tol)
+{
+    float bound{ 1.0f };
+    float mean{ 0.0f };
+    float variance{ 1.0f / 3.0f };
+
+    Matrix a(1000, 1000);
+
+    fillRandf(a, bound);
+
+    for (auto n : a.data)
+    {    
+        bool condition{ (n >= -bound && n <= bound) };
+        requireTrue(condition, "data should be within uniform dist bounds");
+    }
+
+    float sample_mean = std::accumulate(a.data.begin(), a.data.end(), 0.0f) / a.data.size();
+
+    float sample_variance{ 0.0f };
+    for (auto x : a.data)
+        sample_variance += (x - sample_mean) * (x - sample_mean);
+    
+    sample_variance /= static_cast<float>(a.data.size()) - 1.0f;
+
+    requireNear(sample_mean, mean, tol, "sample mean should be close to mean");
+    requireNear(sample_variance, variance, tol, "sample variance should be close to variance");
+}
+
+static void testScaleMatrix(float tol)
+{
+    Matrix x(2,4);
+    fill(x, 2.0f);
+    scale(x, 3.0f);
+
+    for (auto num : x.data)
+        requireNear(num, 6.0f, tol, "scaled matrix element value");
+}
+
 int main()
 {
     testMatMulKnownValues(1e-6f);
@@ -260,6 +312,9 @@ int main()
     testSigmoidKnownValues(1e-6f);
     testSoftmaxSumsToOne(1e-6f);
     testReluKnownValues(1e-6f);
+    testFill(1e-6f);
+    testFillRandf(1e-2);  // should use tighter tol but need more samples
+    testScaleMatrix(1e-6);
 
     std::cout << "All matrix tests passed\n";
 
