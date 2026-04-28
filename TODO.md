@@ -1,13 +1,16 @@
 # TODO
-- mnistnn::Matrix can have its data changed to arbitrary shape despite the designed shape from (rows, cols).
 - Auto diff: don't do full general autodiff; implement small matrix-level autodiff that supports
     - matMul
     - matAdd
     - matSigmoid
     - crossEntropyWithLogits
     - maybe matScale
+- Implement Model::backward()
+- Implement train()
 
 # COMPLETE
+- mnistnn::Matrix can have its data changed to arbitrary shape despite the designed shape from (rows, cols).
+    - added invariant helper `hasValidShape()` to check for data versus declared shape mismatch.
 - matMul: currently accumulates into `out`; only works when `out` starts at zero.
 - avoid softmax in `ModelNN::forward`. Keep softmax in loss/evaluation.
 - implement loss before gradients (use numerically stable form)
