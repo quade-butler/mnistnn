@@ -301,6 +301,31 @@ static void testScaleMatrix(float tol)
         requireNear(num, 6.0f, tol, "scaled matrix element value");
 }
 
+static void testMatrixDataSizeMatchesDeclaredSize()
+{
+    Matrix x(2, 3);
+    x.data = {
+        1.0f, 2.0f, 3.0f, 4.0f
+    };
+
+    bool exception_thrown { false };
+    try { 
+        fill(x, 1.0);
+        fillRandf(x, 1.0);
+        scale(x, 1.0);
+    } 
+    catch (const std::invalid_argument& e)
+    {
+        exception_thrown = true;
+    }
+
+    if (!exception_thrown)
+    {
+        std::cerr << "Input shapes were indeed correct.";
+        throw std::runtime_error("test failed");
+    }
+}
+
 int main()
 {
     testMatMulKnownValues(1e-6f);
@@ -315,6 +340,7 @@ int main()
     testFill(1e-6f);
     testFillRandf(1e-2);  // should use tighter tol but need more samples
     testScaleMatrix(1e-6);
+    testMatrixDataSizeMatchesDeclaredSize();
 
     std::cout << "All matrix tests passed\n";
 
