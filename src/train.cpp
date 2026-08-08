@@ -38,10 +38,35 @@ namespace mnistnn
 			sum += std::exp(logits.data[i] - max_value);
 		}
 
-		return max_value + std::log(sum) - logits.data[static_cast<Size>(target)];
+		return std::log(sum) - (logits.data[static_cast<Size>(target)] - max_value);
+	}
+
+	Matrix crossEntropyGradLogits(const Matrix& logits, Label target)
+	{
+		if ( !(logits.rows == 10 && logits.cols == 1) )
+		{
+			throw std::invalid_argument("Logits must be 10 x 1");
+		}
+		if ( !(logits.data.size() == logits.rows * logits.cols) )
+		{
+			throw std::invalid_argument("Logits data size must be consistent with its Matrix size");
+		}
+		if ( !(target < logits.rows) )
+		{
+			throw std::invalid_argument("Target must be a digit from 0 to 9");
+		}
+		if (logits.data.empty())
+		{
+			throw std::invalid_argument("Logits must be non-empty");
+		}
+
+		Matrix gradient(linalg::softmax(logits));
+		gradient.data[static_cast<Size>(target)] -= 1.0f;
+
+		return gradient;
 	}
 	
-	TrainStats train(Model& model, const Dataset& train_data, const TrainConfig& config)
+	TrainStats train(Model&, const Dataset&, const TrainConfig&)
 	{
 		/*
 		* 0. What inputs does train() need? Model? Config?
@@ -51,5 +76,7 @@ namespace mnistnn
 		*  - shuffle training data
 		*  - 
 		*/
+
+		throw std::logic_error("train: not implemented");
 	}
 } // end namespace TrainNN

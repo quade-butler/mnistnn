@@ -40,6 +40,7 @@ namespace mnistnn
 	void shuffle();
 
 	float crossEntropyLoss(const Matrix& logits, Label target);
+	Matrix crossEntropyGradLogits(const Matrix& logits, Label target);
 } // end namespace mnistnn
 
 #endif // TRAIN_NN_H

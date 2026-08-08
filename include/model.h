@@ -49,8 +49,6 @@ namespace mnistnn
 		Matrix forward(Span<const Pixel> x) const;
 		
 		ForwardCache forwardWithCache(Span<const Pixel> x) const;
-		
-		Matrix crossEntropyGradLogits(const Matrix& logits, Label target);
 
 		ModelGradients backward(
 			const ForwardCache& cache, 
