@@ -6,11 +6,13 @@
 
 namespace mnistnn
 {
-	struct Eval
+	struct EvalStats
 	{
-
+		float loss{ 0.0f };
+		float acc{ 0.0f };
 	};
 
+	EvalStats evaluate(const Model& model, const Dataset& data);
 
 } // end namespace mnistnn
 

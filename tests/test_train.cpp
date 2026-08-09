@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base.h"
+#include "eval.h"
 #include "dataset.h"
 #include "matrix.h"
 #include "model.h"
@@ -26,7 +27,7 @@ using mnistnn::ForwardCache;
 using mnistnn::Dataset;
 using mnistnn::TrainConfig;
 using mnistnn::TrainStats;
-
+using mnistnn::EvalStats;
 
 static void requireNear(
     float actual, float expected, float tol, const char* msg
@@ -362,47 +363,10 @@ static void testTrainOverfitsTinyDataset()
 
     train(model, dataset, config);
 
-    double total_loss{0.0};
-    Size correct{0};
+    const EvalStats stats{evaluate(model, dataset)};
 
-    for (Size i{0}; i < dataset.n; ++i)
-    {
-        const Matrix logits{model.forward(dataset.image(i))};
-
-        total_loss += crossEntropyLoss(logits, dataset.labels[i]);
-
-        const auto predicted_it{
-            std::max_element(
-                logits.data.begin(),
-                logits.data.end()
-            )
-        };
-
-        const Size prediction{
-            static_cast<Size>(
-                std::distance(logits.data.begin(), predicted_it)
-            )
-        };
-
-        if (prediction == static_cast<Size>(dataset.labels[i]))
-        {
-            ++correct;
-        }
-    }
-
-    const float average_loss{
-        static_cast<float>(total_loss / dataset.n)
-    };
-
-    requireTrue(
-        correct == dataset.n,
-        "model should classify every tiny training example"
-    );
-
-    requireTrue(
-        average_loss < 0.5f,
-        "model should reach low loss on the tiny dataset"
-    );
+    requireNear(stats.acc, 1.0f, 1e-6f, "model should classify every tiny training example");
+    requireTrue(stats.loss < 0.5f, "model should reach low loss on the tiny dataset"); 
 }
 
 

@@ -11,6 +11,7 @@ add_library(mnistnn_core
     src/matrix.cpp
     src/model.cpp
     src/train.cpp
+    src/eval.cpp
 )
 
 target_include_directories(mnistnn_core PUBLIC
@@ -41,14 +42,20 @@ add_executable(test_train tests/test_train.cpp)
 target_link_libraries(test_train PRIVATE mnistnn_core)
 add_test(NAME test_train COMMAND test_train)
 
+add_executable(test_eval tests/test_eval.cpp)
+target_link_libraries(test_eval PRIVATE mnistnn_core)
+add_test(NAME test_eval COMMAND test_eval)
+
 if(MSVC)
     target_compile_options(mnistnn_core PRIVATE /W4)
     target_compile_options(test_matrix PRIVATE /W4)
     target_compile_options(test_train PRIVATE /W4)
     target_compile_options(test_model PRIVATE /W4)
+    target_compile_options(test_eval PRIVATE /W4)
 else()
     target_compile_options(mnistnn_core PRIVATE -Wall -Wextra -Wpedantic)
     target_compile_options(test_matrix PRIVATE -Wall -Wextra -Wpedantic)
     target_compile_options(test_train PRIVATE -Wall -Wextra -Wpedantic)
     target_compile_options(test_model PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_options(test_eval PRIVATE -Wall -Wextra -Wpedantic)
 endif()
