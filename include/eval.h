@@ -1,7 +1,8 @@
 #ifndef EVAL_H
 #define EVAL_H
 
-#include 
+#include "dataset.h"
+#include "model.h"
 
 namespace mnistnn
 {
