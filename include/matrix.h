@@ -1,6 +1,8 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
+#include <random>
+
 #include "base.h"
 
 namespace mnistnn::linalg
@@ -25,6 +27,7 @@ namespace mnistnn::linalg
 
 	// Fills matrix with uniformly distributed values between [-bound, bound]
 	void fillRandf(Matrix& out, float bound);
+	void fillRandf(Matrix& out, float bound, std::mt19937& generator);
 
 	void scale(Matrix& out, float scale);
 

@@ -87,11 +87,49 @@ namespace mnistnn
 				parameter.data[i] -= learning_rate * gradient.data[i];
 			}
 		}
+
+		ModelGradients zeroGradients(const Model& model)
+		{
+			return ModelGradients{
+				Matrix(model.num_hidden, model.num_input),
+				Matrix(model.num_hidden, 1),
+				Matrix(model.num_output, model.num_hidden),
+				Matrix(model.num_output, 1)
+			};
+		}
+
+		void addInPlace(Matrix& total, const Matrix& addition)
+		{
+			if (total.rows != addition.rows ||
+				total.cols != addition.cols ||
+				total.data.size() != addition.data.size())
+			{
+				throw std::invalid_argument(
+					"addInPlace: matrix shapes differ"
+				);
+			}
+
+			for (Size i{0}; i < total.data.size(); ++i)
+			{
+				total.data[i] += addition.data[i];
+			}
+		}
+
+		void accumulateGradients(
+			ModelGradients& total,
+			const ModelGradients& addition
+		)
+		{
+			addInPlace(total.dW0, addition.dW0);
+			addInPlace(total.db0, addition.db0);
+			addInPlace(total.dW1, addition.dW1);
+			addInPlace(total.db1, addition.db1);
+		}
 	} // end namespace
 
     void applyGradients(Model& model, const ModelGradients& gradients, float learning_rate)
     {
-		if (std::isinf(learning_rate) || learning_rate < 0)
+		if (!std::isfinite(learning_rate) || learning_rate <= 0.0f)
 		{
 			throw std::invalid_argument("applyGradients: learning rate must be positive and finite");
 		}
@@ -104,16 +142,13 @@ namespace mnistnn
 
     TrainStats train(Model& model, const Dataset& data, const TrainConfig& config)
 	{
-		/*
-		  - TrainCofig.batch must be 1
-		  - TrainStates.loss and .acc describe the final epoch
-		  - Loss and acc are measured before each sample's update
-		  - shuffling occurs once per epoch when enabled
-		*/
-		
-		if (config.epochs == 0 || config.batch != 1)
+		if (config.epochs == 0)
 		{
-			throw std::invalid_argument("train: epochs must be grater than 0 and batch must be 1");
+			throw std::invalid_argument("train: epochs must be greater than 0");
+		}
+		if (config.batch == 0)
+		{
+			throw std::invalid_argument("train: batch size must be greater than 0");
 		}
 		if (!std::isfinite(config.learning_rate) || config.learning_rate <= 0.0f)
 		{
@@ -143,43 +178,75 @@ namespace mnistnn
 
 		TrainStats stats{};
 
-		for (Size epoch{ 0 }; epoch < config.epochs; ++epoch)
+		for (Size epoch{0}; epoch < config.epochs; ++epoch)
 		{
 			if (config.shuffle_epoch)
 			{
 				std::shuffle(indices.begin(), indices.end(), generator);
 			}
 
-			double total_loss{ 0.0 };
-			Size correct{ 0 };
+			double total_loss{0.0};
+			Size correct{0};
 
-			for (const Size index : indices)
+			for (Size batch_begin{0}; batch_begin < data.n; batch_begin += config.batch)
 			{
-				const Label target{ data.labels[index] };
-				const ForwardCache cache{ model.forwardWithCache(data.image(index)) };
-
-				total_loss += crossEntropyLoss(cache.logits, target);
-
-				const auto predicted_it{
-					std::max_element(cache.logits.data.begin(), cache.logits.data.end())
+				const Size actual_batch_size{
+					std::min(config.batch, data.n - batch_begin)
 				};
+				
+				const Size batch_end{ batch_begin + actual_batch_size };
 
-				const Size predicted{
-					static_cast<Size>(std::distance(cache.logits.data.begin(), predicted_it))
-				};
+				ModelGradients batch_gradients{ zeroGradients(model) };
 
-				if (predicted == static_cast<Size>(target)) { ++correct; }
+				for (Size position{batch_begin};
+					position < batch_end;
+					++position)
+				{
+					const Size index{indices[position]};
+					const Label target{data.labels[index]};
 
-				const Matrix dlogits{ crossEntropyGradLogits(cache.logits, target) };
-				const ModelGradients gradients{ model.backward(cache, dlogits) };
+					const ForwardCache cache{ 
+						model.forwardWithCache(data.image(index))
+					};
 
-				applyGradients(model, gradients, config.learning_rate);
+					total_loss += crossEntropyLoss(cache.logits, target);
+
+					const auto predicted_it{
+						std::max_element(
+							cache.logits.data.begin(), cache.logits.data.end()
+						)
+					};
+
+					const Size predicted{
+						static_cast<Size>(
+							std::distance(cache.logits.data.begin(), predicted_it)
+						)
+					};
+
+					if (predicted == static_cast<Size>(target)) {++correct;}
+
+					const Matrix dlogits{
+						crossEntropyGradLogits(cache.logits, target)
+					};
+
+					const ModelGradients sample_gradients{
+						model.backward(cache, dlogits)
+					};
+
+					accumulateGradients(batch_gradients, sample_gradients);
+				}
+
+				applyGradients(
+					model, 
+					batch_gradients, 
+					config.learning_rate / static_cast<float>(actual_batch_size)
+				);
 			}
 
 			stats.loss = static_cast<float>(total_loss / data.n);
-			stats.acc = static_cast<float>(correct) / static_cast<float>(data.n);
+			stats.acc = static_cast<float>(correct) /static_cast<float>(data.n);
 		}
-		
+
 		return stats;
 	}
 } // end namespace mnistnn

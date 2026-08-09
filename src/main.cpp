@@ -12,21 +12,14 @@
 
 namespace
 {
-    mnistnn::Dataset prefix(
-        const mnistnn::Dataset& source,
-        mnistnn::Size count
-    )
+    mnistnn::Dataset prefix(const mnistnn::Dataset& source,mnistnn::Size count)
     {
         if (count > source.n)
         {
-            throw std::invalid_argument(
-                "prefix size exceeds dataset size"
-            );
+            throw std::invalid_argument("prefix size exceeds dataset size");
         }
 
-        const mnistnn::Size pixel_count{
-            count * source.rows * source.cols
-        };
+        const mnistnn::Size pixel_count{ count * source.rows * source.cols };
 
         mnistnn::Vector<mnistnn::Pixel> images(
             source.images.begin(),
@@ -47,10 +40,7 @@ namespace
         };
     }
 
-    void printStats(
-        const char* name,
-        const mnistnn::EvalStats& stats
-    )
+    void printStats(const char* name, const mnistnn::EvalStats& stats)
     {
         std::cout << name
                   << ": loss=" << stats.loss
@@ -93,8 +83,8 @@ int main()
 
         TrainConfig config{};
         config.epochs = 10;
-        config.batch = 1;
-        config.learning_rate = 0.05f;
+        config.batch = 32;
+        config.learning_rate = 0.1f;
         config.shuffle_epoch = true;
         config.seed = 1234u;
 

@@ -65,6 +65,93 @@ static void requireThrowsInvalidArgument(Matrix logits, Label target, const char
     requireTrue(exception_thrown, msg);
 }
 
+static void requireMatricesNear(
+    const Matrix& actual,
+    const Matrix& expected,
+    float tolerance,
+    const char* message
+)
+{
+    requireTrue(
+        actual.rows == expected.rows &&
+        actual.cols == expected.cols &&
+        actual.data.size() == expected.data.size(),
+        message
+    );
+
+    for (Size i{0}; i < actual.data.size(); ++i)
+    {
+        requireNear(
+            actual.data[i],
+            expected.data[i],
+            tolerance,
+            message
+        );
+    }
+}
+
+static void requireModelsNear(
+    const Model& actual,
+    const Model& expected,
+    float tolerance
+)
+{
+    requireMatricesNear(
+        actual.W0, expected.W0, tolerance, "W0 differs"
+    );
+    requireMatricesNear(
+        actual.b0, expected.b0, tolerance, "b0 differs"
+    );
+    requireMatricesNear(
+        actual.W1, expected.W1, tolerance, "W1 differs"
+    );
+    requireMatricesNear(
+        actual.b1, expected.b1, tolerance, "b1 differs"
+    );
+}
+
+static Model makeBatchTestModel()
+{
+    Model model(2);
+
+    fill(model.W0, 0.0f);
+    fill(model.b0, 0.0f);
+    fill(model.W1, 0.0f);
+    fill(model.b1, 0.0f);
+
+    model.W0.data[0] = 0.2f;
+    model.W0.data[model.num_input] = -0.1f;
+
+    model.W1.data[0] = 0.3f;
+    model.W1.data[1] = -0.2f;
+
+    return model;
+}
+
+static Dataset makeDuplicateDataset(
+    Size count,
+    Size input_size,
+    Label label
+)
+{
+    Vector<Pixel> images(count * input_size, Pixel{0});
+
+    for (Size i{0}; i < count; ++i)
+    {
+        images[i * input_size] = 255;
+    }
+
+    Vector<Label> labels(count, label);
+
+    return Dataset{
+        count,
+        28,
+        28,
+        images,
+        labels
+    };
+}
+
 static void testCrossEntropyLoss(float tol)
 {
     Label target{ 1 };
@@ -369,6 +456,86 @@ static void testTrainOverfitsTinyDataset()
     requireTrue(stats.loss < 0.5f, "model should reach low loss on the tiny dataset"); 
 }
 
+static void testBatchAveragesDuplicateGradients()
+{
+    Model single_model{makeBatchTestModel()};
+    Model batch_model{single_model};
+
+    const Dataset single_data{
+        makeDuplicateDataset(
+            1, single_model.num_input, Label{3}
+        )
+    };
+
+    const Dataset duplicate_data{
+        makeDuplicateDataset(
+            2, batch_model.num_input, Label{3}
+        )
+    };
+
+    TrainConfig single_config{};
+    single_config.epochs = 1;
+    single_config.batch = 1;
+    single_config.learning_rate = 0.1f;
+    single_config.shuffle_epoch = false;
+
+    TrainConfig batch_config{single_config};
+    batch_config.batch = 2;
+
+    train(single_model, single_data, single_config);
+    train(batch_model, duplicate_data, batch_config);
+
+    requireModelsNear(
+        batch_model,
+        single_model,
+        1e-6f
+    );
+}
+
+static void testPartialBatchUsesActualSize()
+{
+    Model sequential_model{makeBatchTestModel()};
+    Model partial_batch_model{sequential_model};
+
+    const Dataset two_samples{
+        makeDuplicateDataset(
+            2, sequential_model.num_input, Label{3}
+        )
+    };
+
+    const Dataset three_samples{
+        makeDuplicateDataset(
+            3, partial_batch_model.num_input, Label{3}
+        )
+    };
+
+    TrainConfig sequential_config{};
+    sequential_config.epochs = 1;
+    sequential_config.batch = 1;
+    sequential_config.learning_rate = 0.1f;
+    sequential_config.shuffle_epoch = false;
+
+    TrainConfig partial_config{sequential_config};
+    partial_config.batch = 2;
+
+    train(
+        sequential_model,
+        two_samples,
+        sequential_config
+    );
+
+    train(
+        partial_batch_model,
+        three_samples,
+        partial_config
+    );
+
+    requireModelsNear(
+        partial_batch_model,
+        sequential_model,
+        1e-6f
+    );
+}
 
 int main()
 {
@@ -383,6 +550,8 @@ int main()
     testSingleStepReducesLoss();
     testTrainOverfitsOneExample();
     testTrainOverfitsTinyDataset();
+    testBatchAveragesDuplicateGradients();
+    testPartialBatchUsesActualSize();
 
     std::cout << "All training tests passed\n";
 
