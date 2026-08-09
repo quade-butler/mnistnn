@@ -10,17 +10,36 @@ namespace mnistnn
 {
 	using Matrix = linalg::Matrix;
 
-	Model::Model(Size hidden_nodes) 
-		: num_hidden{hidden_nodes}, W0{num_hidden, num_input}, b0{num_hidden, 1}
-		, W1{num_output, num_hidden}, b1{num_output, 1}
+	Model::Model(Size hidden_nodes)
+		: Model(
+			hidden_nodes,static_cast<std::uint32_t>(std::random_device{}())
+		)
+	{}
+
+	Model::Model(Size hidden_nodes, std::uint32_t seed)
+		: num_hidden{hidden_nodes},
+		W0{num_hidden, num_input},
+		b0{num_hidden, 1},
+		W1{num_output, num_hidden},
+		b1{num_output, 1}
 	{
-		float bound_0{ std::sqrt(6.0f / (num_input + num_hidden)) };
-		float bound_1{ std::sqrt(6.0f / (num_hidden + num_output)) };
+		if (hidden_nodes == 0)
+		{
+			throw std::invalid_argument("Model: hidden node count must be positive");
+		}
 
-		// biases kept at zero
+		std::mt19937 generator{seed};
 
-		fillRandf(W0, bound_0);
-		fillRandf(W1, bound_1);
+		const float bound_0{
+			std::sqrt(6.0f / static_cast<float>(num_input + num_hidden))
+		};
+
+		const float bound_1{
+			std::sqrt(6.0f / static_cast<float>(num_hidden + num_output))
+		};
+
+		fillRandf(W0, bound_0, generator);
+		fillRandf(W1, bound_1, generator);
 	}
 
 	namespace 

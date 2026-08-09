@@ -36,20 +36,23 @@ namespace mnistnn::linalg
 
 	void fillRandf(Matrix& out, float bound)
 	{
+		static thread_local std::mt19937 generator{std::random_device{}()};
+		fillRandf(out, bound, generator);
+	}
+
+	void fillRandf(Matrix& out, float bound, std::mt19937& generator)
+	{
 		if (!hasValidShape(out))
 		{
-			std::cerr << "out matrix has data size " << out.data.size()
-					  << ", but declared size is " << out.cols * out.rows;
-			throw std::invalid_argument(
-				"fillRandf: out matrix data size does not match declared size"
-			);
+			throw std::invalid_argument("fillRandf: matrix shape is invalid");
 		}
 
-		static thread_local std::mt19937 gen{ std::random_device{}() };
-		std::uniform_real_distribution<float> dis(-bound, bound);
-		
-		for (auto& num : out.data)
-			num = dis(gen);
+		std::uniform_real_distribution<float> distribution(-bound, bound);
+
+		for (float& value : out.data)
+		{
+			value = distribution(generator);
+		}
 	}
 
 	void scale(Matrix& out, float scale)

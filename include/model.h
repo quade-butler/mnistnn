@@ -39,10 +39,9 @@ namespace mnistnn
 		Size num_hidden{ 128 };
 		Matrix W0, b0, W1, b1;
 
-		Model() = default;
-		
 		explicit Model(Size hidden_nodes = 128);
 
+		Model(Size hidden_nodes, std::uint32_t seed);
 		
 		Matrix forward(Span<const Pixel> x) const;
 		

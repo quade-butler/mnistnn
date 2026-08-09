@@ -287,6 +287,33 @@ static void testModelBackwardNumerically(float tol)
     );
 }
 
+static void testSeededModelInitialization()
+{
+    const Model first{8, 1234u};
+    const Model second{8, 1234u};
+    const Model different{8, 5678u};
+
+    requireTrue(
+        first.W0.data == second.W0.data,
+        "equal seeds should produce equal W0"
+    );
+
+    requireTrue(
+        first.W1.data == second.W1.data,
+        "equal seeds should produce equal W1"
+    );
+
+    requireTrue(
+        first.W0.data != different.W0.data,
+        "different seeds should produce different W0"
+    );
+
+    requireTrue(
+        first.W1.data != different.W1.data,
+        "different seeds should produce different W1"
+    );
+}
+
 
 int main()
 {
@@ -294,6 +321,7 @@ int main()
     testModelForwardIncorrectInputShape();
     testModelBackward(1e-6f);
     testModelBackwardNumerically(1e-3f);
+    testSeededModelInitialization();
 
     std::cout << "All model tests passed\n";
 

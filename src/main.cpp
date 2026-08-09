@@ -76,17 +76,19 @@ int main()
         const Dataset train_data{prefix(complete_train, 500)};
         const Dataset test_data{prefix(complete_test, 200)};
 
-        Model model{32};
+        constexpr std::uint32_t experiment_seed{1234u};
+
+        Model model{32, experiment_seed};
 
         printStats("Train before", evaluate(model, train_data));
         printStats("Test before", evaluate(model, test_data));
 
         TrainConfig config{};
+        config.seed = experiment_seed;
         config.epochs = 10;
         config.batch = 32;
         config.learning_rate = 0.1f;
         config.shuffle_epoch = true;
-        config.seed = 1234u;
 
         const TrainStats training{train(model, train_data, config)};
 
