@@ -6,13 +6,19 @@
 
 #include "base.h"
 #include "matrix.h"
+#include "train.h"
 
 using mnistnn::Pixel;
+using mnistnn::Label;
+using mnistnn::Size;
 using mnistnn::Vector;
 using mnistnn::Model;
 using mnistnn::ForwardCache;
 using mnistnn::linalg::Matrix;
 using mnistnn::linalg::fill;
+using mnistnn::ModelGradients;
+using mnistnn::crossEntropyLoss;
+using mnistnn::crossEntropyGradLogits;
 
 static void requireNear(
     float actual, float expected, float tol, const char* msg
@@ -88,11 +94,206 @@ static void testModelForwardIncorrectInputShape()
     requireTrue(exception_thrown, "forward should reject incorrect input shape.");
 }
 
+static void testModelBackward(float tol)
+{
+    Model model(2);
+
+    fill(model.W1, 0.0f);
+
+    // W1:
+    // [1 2]
+    // [3 4]
+    // [0 0]
+    // ...
+    model.W1.data[0] = 1.0f;
+    model.W1.data[1] = 2.0f;
+    model.W1.data[2] = 3.0f;
+    model.W1.data[3] = 4.0f;
+
+    ForwardCache cache{
+        Matrix(model.num_input, 1),
+        Matrix(model.num_hidden, 1),
+        Matrix(model.num_hidden, 1),
+        Matrix(model.num_output, 1),
+    };
+
+    cache.x.data[0] = 1.0f;
+    cache.x.data[1] = 0.5f;
+
+    cache.a1.data = {0.25f, 0.75f};
+
+    Matrix dlogits(model.num_output, 1);
+    dlogits.data[0] = 0.2f;
+    dlogits.data[1] = -0.2f;
+
+    const ModelGradients gradients{ model.backward(cache, dlogits) };
+
+    requireTrue(
+        gradients.dW1.rows == model.num_output &&
+        gradients.dW1.cols == model.num_hidden,
+        "dW1 shape"
+    );
+    
+    requireTrue(
+        gradients.db1.rows == model.num_output &&
+        gradients.db1.cols == 1,
+        "db1 shape"
+    );
+    
+    requireTrue(
+        gradients.dW0.rows == model.num_hidden &&
+        gradients.dW0.cols == model.num_input,
+        "dW0 shape"
+    );
+    
+    requireTrue(
+        gradients.db0.rows == model.num_hidden &&
+        gradients.db0.cols == 1,
+        "db0 shape"
+    );
+
+    requireNear(gradients.dW1.data[0], 0.05f, tol, "dW1[0,0]");
+    requireNear(gradients.dW1.data[1], 0.15f, tol, "dW1[0,1]");
+    requireNear(gradients.dW1.data[2], -0.05f, tol, "dW1[1,0]");
+    requireNear(gradients.dW1.data[3], -0.15f, tol, "dW1[1,1]");
+
+    requireNear(gradients.db1.data[0], 0.2f, tol, "db1[0]");
+    requireNear(gradients.db1.data[1], -0.2f, tol, "db1[1]");
+
+    requireNear(gradients.db0.data[0], -0.075f, tol, "db0[0]");
+    requireNear(gradients.db0.data[1], -0.075f, tol, "db0[1]");
+
+    requireNear(gradients.dW0.data[0], -0.075f, tol, "dW0[0,0]");
+    requireNear(gradients.dW0.data[1], -0.0375f, tol, "dW0[0,1]");
+
+    const Size second_row(model.num_input);
+
+    requireNear(
+        gradients.dW0.data[second_row],
+        -0.075f,
+        tol,
+        "dW0[1,0]"
+    );
+    requireNear(
+        gradients.dW0.data[second_row + 1],
+        -0.0375f,
+        tol,
+        "dW0[1,1]"
+    );
+}
+
+static void testModelBackwardNumerically(float tol)
+{
+    Model model(2);
+
+    fill(model.W0, 0.0f);
+    fill(model.b0, 0.0f);
+    fill(model.W1, 0.0f);
+    fill(model.b1, 0.0f);
+
+    // Give both hidden nodes small, deterministic pre-activations.
+    model.W0.data[0] = 0.2f;
+    model.W0.data[1] = -0.1f;
+
+    const Size second_hidden_row{model.num_input};
+    model.W0.data[second_hidden_row] = -0.3f;
+    model.W0.data[second_hidden_row + 1] = 0.4f;
+
+    model.b0.data[0] = 0.05f;
+    model.b0.data[1] = -0.02f;
+
+    // First two output neurons depend on both hidden neurons.
+    model.W1.data[0] = 0.3f;
+    model.W1.data[1] = -0.2f;
+    model.W1.data[2] = -0.1f;
+    model.W1.data[3] = 0.4f;
+
+    Vector<Pixel> input(model.num_input, 0);
+    input[0] = 255;
+    input[1] = 128;
+
+    const Label target{1};
+
+    const ForwardCache cache{model.forwardWithCache(input)};
+    const Matrix dlogits{
+        crossEntropyGradLogits(cache.logits, target)
+    };
+    const ModelGradients analytical{
+        model.backward(cache, dlogits)
+    };
+
+    constexpr float epsilon{1e-3f};
+
+    const auto numericalGradient =
+        [&](float& parameter)
+        {
+            const float original{parameter};
+
+            parameter = original + epsilon;
+            const float loss_plus{
+                crossEntropyLoss(model.forward(input), target)
+            };
+
+            parameter = original - epsilon;
+            const float loss_minus{
+                crossEntropyLoss(model.forward(input), target)
+            };
+
+            parameter = original;
+
+            return (loss_plus - loss_minus) / (2.0f * epsilon);
+        };
+
+    requireNear(
+        analytical.dW0.data[0],
+        numericalGradient(model.W0.data[0]),
+        tol,
+        "numerical dW0[0,0]"
+    );
+
+    requireNear(
+        analytical.dW0.data[second_hidden_row],
+        numericalGradient(model.W0.data[second_hidden_row]),
+        tol,
+        "numerical dW0[1,0]"
+    );
+
+    requireNear(
+        analytical.db0.data[0],
+        numericalGradient(model.b0.data[0]),
+        tol,
+        "numerical db0[0]"
+    );
+
+    requireNear(
+        analytical.dW1.data[0],
+        numericalGradient(model.W1.data[0]),
+        tol,
+        "numerical dW1[0,0]"
+    );
+
+    requireNear(
+        analytical.dW1.data[2],
+        numericalGradient(model.W1.data[2]),
+        tol,
+        "numerical dW1[1,0]"
+    );
+
+    requireNear(
+        analytical.db1.data[1],
+        numericalGradient(model.b1.data[1]),
+        tol,
+        "numerical db1[1]"
+    );
+}
+
 
 int main()
 {
     testModelForward(1e-6f);
     testModelForwardIncorrectInputShape();
+    testModelBackward(1e-6f);
+    testModelBackwardNumerically(1e-3f);
 
     std::cout << "All model tests passed\n";
 

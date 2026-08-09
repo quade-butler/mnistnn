@@ -65,8 +65,41 @@ namespace mnistnn
 
 		return gradient;
 	}
-	
-	TrainStats train(Model&, const Dataset&, const TrainConfig&)
+
+	namespace
+	{
+		void updateParameter(Matrix& parameter, const Matrix& gradient, float learning_rate)
+		{
+			if (
+				parameter.rows != gradient.rows || 
+				parameter.cols != gradient.cols || 
+				parameter.data.size() != gradient.data.size())
+			{
+				throw std::invalid_argument("updateParameter: parameter and gradient shapes differ");
+			}
+
+			for (Size i{ 0 }; i < parameter.data.size(); ++i)
+			{
+				parameter.data[i] -= learning_rate * gradient.data[i];
+			}
+
+		}
+	}
+
+    void applyGradients(Model& model, const ModelGradients& gradients, float learning_rate)
+    {
+		if (std::isinf(learning_rate) || learning_rate < 0)
+		{
+			throw std::invalid_argument("applyGradients: learning rate must be positive and finite");
+		}
+
+		updateParameter(model.W0, gradients.dW0, learning_rate);
+		updateParameter(model.b0, gradients.db0, learning_rate);
+		updateParameter(model.W1, gradients.dW1, learning_rate);
+		updateParameter(model.b1, gradients.db1, learning_rate);
+    }
+
+    TrainStats train(Model&, const Dataset&, const TrainConfig&)
 	{
 		/*
 		* 0. What inputs does train() need? Model? Config?

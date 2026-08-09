@@ -7,13 +7,20 @@
 
 #include "base.h"
 #include "matrix.h"
+#include "model.h"
 
+using mnistnn::Vector;
 using mnistnn::linalg::Matrix;
 using mnistnn::linalg::fill;
 using mnistnn::Label;
 using mnistnn::Size;
+using mnistnn::Pixel;
 using mnistnn::crossEntropyLoss;
 using mnistnn::crossEntropyGradLogits;
+using mnistnn::Model;
+using mnistnn::ModelGradients;
+using mnistnn::ForwardCache;
+
 
 static void requireNear(
     float actual, float expected, float tol, const char* msg
@@ -161,9 +168,88 @@ static void testCrossEntropyGradientNumerically(float tol)
             "cross-entropy analytical and numerical gradients"
         );
     }
-
-
 }
+
+static void testApplyGradients(float tol)
+{
+    Model model(2);
+
+    fill(model.W0, 1.0f);
+    fill(model.b0, 2.0f);
+    fill(model.W1, 3.0f);
+    fill(model.b1, 4.0f);
+
+    ModelGradients gradients{
+        Matrix(model.num_hidden, model.num_input),
+        Matrix(model.num_hidden, 1),
+        Matrix(model.num_output, model.num_hidden),
+        Matrix(model.num_output, 1)
+    };
+
+    fill(gradients.dW0, 0.5f);
+    fill(gradients.db0, -1.0f);
+    fill(gradients.dW1, 2.0f);
+    fill(gradients.db1, -0.25f);
+
+    applyGradients(model, gradients, 0.1f);
+
+    requireNear(model.W0.data[0], 0.95f, tol, "updated W0");
+    requireNear(model.b0.data[0], 2.1f, tol, "updated b0");
+    requireNear(model.W1.data[0], 2.8f, tol, "updated W1");
+    requireNear(model.b1.data[0], 4.025f, tol, "updated b1");
+}
+
+static void testSingleStepReducesLoss()
+{
+    Model model(2);
+
+    fill(model.W0, 0.0f);
+    fill(model.b0, 0.0f);
+    fill(model.W1, 0.0f);
+    fill(model.b1, 0.0f);
+
+    model.W0.data[0] = 0.2f;
+    model.W0.data[1] = -0.1f;
+
+    const Size second_hidden_row{model.num_input};
+    model.W0.data[second_hidden_row] = -0.3f;
+    model.W0.data[second_hidden_row + 1] = 0.4f;
+
+    model.W1.data[0] = 0.3f;
+    model.W1.data[1] = -0.2f;
+    model.W1.data[2] = -0.1f;
+    model.W1.data[3] = 0.4f;
+
+    Vector<Pixel> input(model.num_input, 0);
+    input[0] = 255;
+    input[1] = 128;
+
+    const Label target{1};
+
+    const ForwardCache cache{model.forwardWithCache(input)};
+    const float loss_before{
+        crossEntropyLoss(cache.logits, target)
+    };
+
+    const Matrix dlogits{
+        crossEntropyGradLogits(cache.logits, target)
+    };
+    const ModelGradients gradients{
+        model.backward(cache, dlogits)
+    };
+
+    applyGradients(model, gradients, 0.1f);
+
+    const float loss_after{
+        crossEntropyLoss(model.forward(input), target)
+    };
+
+    requireTrue(
+        loss_after < loss_before,
+        "one gradient step should reduce loss"
+    );
+}
+
 
 int main()
 {
@@ -174,6 +260,8 @@ int main()
     testCrossEntropyLossLargeLogits(1e-6);
     testCrossEntropyGradEqualLogits(1e-6f);
     testCrossEntropyGradientNumerically(1e-4f);
+    testApplyGradients(1e-6f);
+    testSingleStepReducesLoss();
 
     std::cout << "All training tests passed\n";
 

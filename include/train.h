@@ -41,6 +41,9 @@ namespace mnistnn
 
 	float crossEntropyLoss(const Matrix& logits, Label target);
 	Matrix crossEntropyGradLogits(const Matrix& logits, Label target);
+	void applyGradients(
+		Model& model, const ModelGradients& gradients, float learning_rate
+	);
 } // end namespace mnistnn
 
 #endif // TRAIN_NN_H

@@ -67,4 +67,34 @@ namespace mnistnn
 		return ForwardCache {x_float, z1, a1, z2};
 	}
 
+	ModelGradients Model::backward(const ForwardCache& cache, const Matrix& dlogits) const
+	{
+		const Matrix& x = cache.x;
+		const Matrix& a1 = cache.a1;
+
+		Matrix dW0(num_hidden, num_input);
+		Matrix db0(num_hidden, 1);
+		Matrix dW1(num_output, num_hidden);
+		Matrix db1(num_output, 1);
+
+		matMul(dW1, dlogits, a1, false, true);
+		db1 = dlogits;
+
+		Matrix da1(num_hidden, 1);
+		matMul(da1, W1, dlogits, true, false);
+
+		Matrix dz1(num_hidden, 1);
+		for (Size i{ 0 }; i < dz1.data.size(); ++i)
+		{
+			dz1.data[i] = da1.data[i] * a1.data[i] * (1.0f - a1.data[i]);
+		}
+
+		matMul(dW0, dz1, x, false, true);
+		db0 = dz1;
+
+		ModelGradients gradients{dW0, db0, dW1, db1};
+
+		return gradients;
+	}
+
 } // end namespace mnistnn
