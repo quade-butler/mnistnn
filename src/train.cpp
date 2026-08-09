@@ -86,7 +86,6 @@ namespace mnistnn
 			{
 				parameter.data[i] -= learning_rate * gradient.data[i];
 			}
-
 		}
 	} // end namespace
 
