@@ -1,6 +1,3 @@
-// DATASET
-// Reads in MNIST images and labels.
-
 #ifndef DATASET_H
 #define DATASET_H
 

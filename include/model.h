@@ -1,7 +1,5 @@
-// ModelNN for neural network models
-
-#ifndef MODEL_NN_H
-#define MODEL_NN_H
+#ifndef MODEL_H
+#define MODEL_H
 
 #include <string>
 
@@ -62,4 +60,4 @@ namespace mnistnn
 
 } // end namespace mnistnn
 
-#endif // MODEL_NN_H
+#endif // MODEL_H

@@ -1,16 +1,13 @@
-// TrainNN for neural network training
+#ifndef TRAIN_H
+#define TRAIN_H
 
-#ifndef TRAIN_NN_H
-#define TRAIN_NN_H
+#include <cstdint>
 
 #include "base.h"
 #include "dataset.h"
 #include "matrix.h"
 #include "model.h"
 
-// TrainNN::Train needs to:
-//	- provide a train() function
-//	- provide a shuffle() function to shuffle data-label pairs
 namespace mnistnn
 {
 	using Matrix	= linalg::Matrix;
@@ -19,16 +16,14 @@ namespace mnistnn
 	{
 		Size  epochs{ 5 };
 		Size  batch{ 64 };
-		float rate{ 0.01f };
-
+		std::uint32_t seed{ 1234u };
+		float learning_rate{ 0.01f };
 		bool shuffle_epoch{ true };
 	};
 
 	struct TrainStats {
-		float train_loss{ 0.0f };
-		float train_acc{ 0.0f };
-		float test_loss{ 0.0f };
-		float test_acc{ 0.0f };
+		float loss{ 0.0f };
+		float acc{ 0.0f };
 	};
 
 	TrainStats train(
@@ -36,8 +31,6 @@ namespace mnistnn
 		const Dataset& train_data, 
 		const TrainConfig& config
 	);
-	
-	void shuffle();
 
 	float crossEntropyLoss(const Matrix& logits, Label target);
 	Matrix crossEntropyGradLogits(const Matrix& logits, Label target);
@@ -46,4 +39,4 @@ namespace mnistnn
 	);
 } // end namespace mnistnn
 
-#endif // TRAIN_NN_H
+#endif // TRAIN_H

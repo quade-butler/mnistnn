@@ -2,6 +2,10 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iterator>
+#include <limits>
+#include <numeric>
+#include <random>
 #include <stdexcept>
 
 #include "dataset.h"
@@ -84,7 +88,7 @@ namespace mnistnn
 			}
 
 		}
-	}
+	} // end namespace
 
     void applyGradients(Model& model, const ModelGradients& gradients, float learning_rate)
     {
@@ -99,17 +103,84 @@ namespace mnistnn
 		updateParameter(model.b1, gradients.db1, learning_rate);
     }
 
-    TrainStats train(Model&, const Dataset&, const TrainConfig&)
+    TrainStats train(Model& model, const Dataset& data, const TrainConfig& config)
 	{
 		/*
-		* 0. What inputs does train() need? Model? Config?
-		* 1. Outer loop over epochs
-		* 2. Inner loop over batches
-		* 
-		*  - shuffle training data
-		*  - 
+		  - TrainCofig.batch must be 1
+		  - TrainStates.loss and .acc describe the final epoch
+		  - Loss and acc are measured before each sample's update
+		  - shuffling occurs once per epoch when enabled
 		*/
+		
+		if (config.epochs == 0 || config.batch != 1)
+		{
+			throw std::invalid_argument("train: epochs must be grater than 0 and batch must be 1");
+		}
+		if (!std::isfinite(config.learning_rate) || config.learning_rate <= 0.0f)
+		{
+			throw std::invalid_argument("train: learning rate must be positive and finite");
+		}
+		if (data.n == 0)
+		{
+			throw std::invalid_argument("train: dataset must be non-empty");
+		}
+		if (data.labels.size() != data.n)
+		{
+			throw std::invalid_argument("train: dataset's number of labels must equal number of images");
+		}
+		if (data.images.size() != data.n * data.rows * data.cols)
+		{
+			throw std::invalid_argument("train: incorrect image count in dataset");
+		}
+		if (data.rows * data.cols != model.num_input)
+		{
+			throw std::invalid_argument("train: image dimensions do not equal number of model input nodes");
+		}
 
-		throw std::logic_error("train: not implemented");
+		Vector<Size> indices(data.n);
+		std::iota(indices.begin(), indices.end(), Size{ 0 });
+
+		std::mt19937 generator{ config.seed };
+
+		TrainStats stats{};
+
+		for (Size epoch{ 0 }; epoch < config.epochs; ++epoch)
+		{
+			if (config.shuffle_epoch)
+			{
+				std::shuffle(indices.begin(), indices.end(), generator);
+			}
+
+			double total_loss{ 0.0 };
+			Size correct{ 0 };
+
+			for (const Size index : indices)
+			{
+				const Label target{ data.labels[index] };
+				const ForwardCache cache{ model.forwardWithCache(data.image(index)) };
+
+				total_loss += crossEntropyLoss(cache.logits, target);
+
+				const auto predicted_it{
+					std::max_element(cache.logits.data.begin(), cache.logits.data.end())
+				};
+
+				const Size predicted{
+					static_cast<Size>(std::distance(cache.logits.data.begin(), predicted_it))
+				};
+
+				if (predicted == static_cast<Size>(target)) { ++correct; }
+
+				const Matrix dlogits{ crossEntropyGradLogits(cache.logits, target) };
+				const ModelGradients gradients{ model.backward(cache, dlogits) };
+
+				applyGradients(model, gradients, config.learning_rate);
+			}
+
+			stats.loss = static_cast<float>(total_loss / data.n);
+			stats.acc = static_cast<float>(correct) / static_cast<float>(data.n);
+		}
+		
+		return stats;
 	}
-} // end namespace TrainNN
+} // end namespace mnistnn

@@ -1,7 +1,7 @@
-// EvalNN for model evaluation
+#ifndef EVAL_H
+#define EVAL_H
 
-#ifndef EVAL_NN_H
-#define EVAL_NN_H
+#include 
 
 namespace mnistnn
 {
@@ -13,4 +13,4 @@ namespace mnistnn
 
 } // end namespace mnistnn
 
-#endif // EVAL_NN_H
+#endif // EVAL_H

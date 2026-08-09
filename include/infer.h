@@ -1,7 +1,7 @@
 // InferNN for model inference
 
-#ifndef INFER_NN_H
-#define INFER_NN_H
+#ifndef INFER_H
+#define INFER_H
 
 namespace mnistnn
 {
@@ -13,4 +13,4 @@ namespace mnistnn
 
 } // end namespace mnistnn
 
-#endif // INFER_NN_H
+#endif // INFER_H

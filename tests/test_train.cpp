@@ -1,11 +1,14 @@
 #include "train.h"
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <iterator>
 #include <stdexcept>
 #include <string>
 
 #include "base.h"
+#include "dataset.h"
 #include "matrix.h"
 #include "model.h"
 
@@ -20,6 +23,9 @@ using mnistnn::crossEntropyGradLogits;
 using mnistnn::Model;
 using mnistnn::ModelGradients;
 using mnistnn::ForwardCache;
+using mnistnn::Dataset;
+using mnistnn::TrainConfig;
+using mnistnn::TrainStats;
 
 
 static void requireNear(
@@ -250,6 +256,155 @@ static void testSingleStepReducesLoss()
     );
 }
 
+static void testTrainOverfitsOneExample()
+{
+    Model model(2);
+
+    fill(model.W0, 0.0f);
+    fill(model.b0, 0.0f);
+    fill(model.W1, 0.0f);
+    fill(model.b1, 0.0f);
+
+    Vector<Pixel> images(model.num_input, 0);
+    images[0] = 255;
+
+    Vector<Label> labels{3};
+
+    Dataset dataset{
+        1,
+        28,
+        28,
+        images,
+        labels
+    };
+
+    const float loss_before{
+        crossEntropyLoss(
+            model.forward(dataset.image(0)),
+            labels[0]
+        )
+    };
+
+    TrainConfig config{};
+    config.epochs = 20;
+    config.batch = 1;
+    config.learning_rate = 0.1f;
+    config.shuffle_epoch = false;
+
+    const TrainStats stats{
+        train(model, dataset, config)
+    };
+
+    const float loss_after{
+        crossEntropyLoss(
+            model.forward(dataset.image(0)),
+            labels[0]
+        )
+    };
+
+    requireTrue(
+        loss_after < loss_before,
+        "training should reduce loss on one example"
+    );
+
+    requireTrue(
+        std::isfinite(stats.loss),
+        "reported training loss should be finite"
+    );
+
+    requireTrue(
+        stats.acc >= 0.0f && stats.acc <= 1.0f,
+        "reported accuracy should be a valid proportion"
+    );
+}
+
+static void testTrainOverfitsTinyDataset()
+{
+    constexpr Size sample_count{3};
+
+    Model model(3);
+
+    fill(model.W0, 0.0f);
+    fill(model.b0, 0.0f);
+    fill(model.W1, 0.0f);
+    fill(model.b1, 0.0f);
+
+    // Give each hidden node a different input feature.
+    model.W0.data[0 * model.num_input + 0] = 1.0f;
+    model.W0.data[1 * model.num_input + 1] = 1.0f;
+    model.W0.data[2 * model.num_input + 2] = 1.0f;
+
+    Vector<Pixel> images(
+        sample_count * model.num_input,
+        Pixel{0}
+    );
+
+    images[0 * model.num_input + 0] = 255;
+    images[1 * model.num_input + 1] = 255;
+    images[2 * model.num_input + 2] = 255;
+
+    Vector<Label> labels{0, 1, 2};
+
+    Dataset dataset{
+        sample_count,
+        28,
+        28,
+        images,
+        labels
+    };
+
+    TrainConfig config{};
+    config.epochs = 500;
+    config.batch = 1;
+    config.learning_rate = 0.1f;
+    config.shuffle_epoch = true;
+    config.seed = 1234u;
+
+    train(model, dataset, config);
+
+    double total_loss{0.0};
+    Size correct{0};
+
+    for (Size i{0}; i < dataset.n; ++i)
+    {
+        const Matrix logits{model.forward(dataset.image(i))};
+
+        total_loss += crossEntropyLoss(logits, dataset.labels[i]);
+
+        const auto predicted_it{
+            std::max_element(
+                logits.data.begin(),
+                logits.data.end()
+            )
+        };
+
+        const Size prediction{
+            static_cast<Size>(
+                std::distance(logits.data.begin(), predicted_it)
+            )
+        };
+
+        if (prediction == static_cast<Size>(dataset.labels[i]))
+        {
+            ++correct;
+        }
+    }
+
+    const float average_loss{
+        static_cast<float>(total_loss / dataset.n)
+    };
+
+    requireTrue(
+        correct == dataset.n,
+        "model should classify every tiny training example"
+    );
+
+    requireTrue(
+        average_loss < 0.5f,
+        "model should reach low loss on the tiny dataset"
+    );
+}
+
 
 int main()
 {
@@ -262,6 +417,8 @@ int main()
     testCrossEntropyGradientNumerically(1e-4f);
     testApplyGradients(1e-6f);
     testSingleStepReducesLoss();
+    testTrainOverfitsOneExample();
+    testTrainOverfitsTinyDataset();
 
     std::cout << "All training tests passed\n";
 
