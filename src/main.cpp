@@ -92,13 +92,40 @@ int main()
 
         const TrainStats training{train(model, train_data, config)};
 
-        std::cout << "Final training epoch"
-                << ": loss=" << training.loss
-                << ", accuracy=" << training.acc
-                << '\n';
+        const EvalStats trained_stats{ evaluate(model, test_data) };
 
-        printStats("Train after", evaluate(model, train_data));
-        printStats("Test after", evaluate(model, test_data));
+        const std::string checkpoint_path{ "build/mnistnn-model.bin" };
+
+        model.save(checkpoint_path);
+
+        const Model loaded{ Model::load(checkpoint_path) };
+
+        const EvalStats loaded_stats{ evaluate(loaded, test_data) };
+
+        printStats("Trained model", trained_stats);
+        printStats("Loaded model", loaded_stats);
+
+        const Matrix original_logits{ model.forward(test_data.image(0)) };
+
+        const Matrix loaded_logits{ loaded.forward(test_data.image(0)) };
+
+        if (original_logits.data != loaded_logits.data)
+        {
+            throw std::runtime_error("loaded model output differs from saved model");
+        }
+
+        const float loss_before_resume{ evaluate(loaded, train_data).loss };
+
+        Model resumed{loaded};
+
+        train(resumed, train_data, config);
+
+        const float loss_after_resume{ evaluate(resumed, train_data).loss };
+
+        if (loss_after_resume >= loss_before_resume)
+        {
+            std::cerr << "Warning: resumed training did not reduce loss\n";
+        }
 
         return 0;
     }

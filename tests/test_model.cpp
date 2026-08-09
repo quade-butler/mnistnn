@@ -1,6 +1,7 @@
 #include "model.h"
 
 #include <cmath>
+#include <filesystem>
 #include <iostream>
 #include <stdexcept>
 
@@ -314,6 +315,45 @@ static void testSeededModelInitialization()
     );
 }
 
+static void testModelSaveLoad()
+{
+    const std::filesystem::path path{
+        std::filesystem::temp_directory_path() /
+        "mnistnn_model_round_trip.bin"
+    };
+
+    Model original{3, 1234u};
+
+    original.b0.data = {0.1f, -0.2f, 0.3f};
+    original.b1.data[4] = 0.75f;
+
+    original.save(path.string());
+
+    const Model loaded{
+        Model::load(path.string())
+    };
+
+    std::filesystem::remove(path);
+
+    requireTrue(
+        loaded.num_input == original.num_input,
+        "loaded input size"
+    );
+    requireTrue(
+        loaded.num_hidden == original.num_hidden,
+        "loaded hidden size"
+    );
+    requireTrue(
+        loaded.num_output == original.num_output,
+        "loaded output size"
+    );
+
+    requireTrue(loaded.W0.data == original.W0.data, "loaded W0");
+    requireTrue(loaded.b0.data == original.b0.data, "loaded b0");
+    requireTrue(loaded.W1.data == original.W1.data, "loaded W1");
+    requireTrue(loaded.b1.data == original.b1.data, "loaded b1");
+}
+
 
 int main()
 {
@@ -322,6 +362,7 @@ int main()
     testModelBackward(1e-6f);
     testModelBackwardNumerically(1e-3f);
     testSeededModelInitialization();
+    testModelSaveLoad();
 
     std::cout << "All model tests passed\n";
 
