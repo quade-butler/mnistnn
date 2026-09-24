@@ -1,4 +1,5 @@
 #include <charconv>
+#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <exception>
@@ -295,12 +296,23 @@ int runTrain(const TrainOptions& options)
 
     std::cout << "Training...\n";
 
+    const auto training_start{ std::chrono::steady_clock::now() };
+
     const TrainStats training{ train(model, train_data, config) };
+
+    const auto training_end{ std::chrono::steady_clock::now() };
+    const std::chrono::duration<double> training_duration{
+        training_end - training_start
+    };
 
     std::cout << "Final training epoch"
               << ": loss=" << training.loss
               << ", accuracy=" << training.acc
               << '\n';
+
+    std::cout << "Training time: "
+              << training_duration.count()
+              << " seconds\n";
 
     printStats("Train after", evaluate(model, train_data));
     printStats("Test after", evaluate(model, test_data));

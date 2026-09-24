@@ -10,6 +10,7 @@ data/*.txt
 
 # Build output
 build/
+build-*/
 cmake-build-*/
 CMakeFiles/
 CMakeCache.txt

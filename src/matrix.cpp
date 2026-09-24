@@ -74,7 +74,53 @@ namespace mnistnn::linalg
 
 	namespace
 	{
-		void matMulnn(Matrix& out, const Matrix& a, const Matrix& b)
+	#if MNISTNN_MATMUL_IMPLEMENTATION == 2
+		void matVecNn(Matrix& out, const Matrix& a, const Matrix& b)
+		{
+			for (Size i{ 0 }; i < a.rows; ++i)
+			{
+				float sum{ 0.0f };
+				for (Size k{ 0 }; k < a.cols; ++k)
+				{
+					sum += a.data[i * a.cols + k] * b.data[k];
+				}
+				out.data[i] = sum;
+			}
+		}
+
+		void outerProductNt(Matrix& out, const Matrix& a, const Matrix& b)
+		{
+			for (Size i{ 0 }; i < out.rows; ++i)
+			{
+				const float a_i{ a.data[i] };
+				for (Size j{ 0 }; j < out.cols; ++j)
+				{
+					out.data[i * out.cols + j] = a_i * b.data[j];
+				}
+			}
+		}
+	#endif
+
+	#if MNISTNN_MATMUL_IMPLEMENTATION != 1
+		void matMulnnIjk(Matrix& out, const Matrix& a, const Matrix& b)
+		{
+			for (Size i{ 0 }; i < out.rows; ++i)
+			{
+				for (Size j{ 0 }; j < out.cols; ++j)
+				{
+					for (Size k{ 0 }; k < a.cols; ++k)
+					{
+						out.data[i * out.cols + j]
+							+= a.data[i * a.cols + k]
+							*  b.data[k * b.cols + j];
+					}
+				}
+			}
+		}
+	#endif
+
+	#if MNISTNN_MATMUL_IMPLEMENTATION != 0
+		void matMulnnIkj(Matrix& out, const Matrix& a, const Matrix& b)
 		{
 			for (Size i{ 0 }; i < out.rows; ++i)
 			{
@@ -89,23 +135,60 @@ namespace mnistnn::linalg
 				}
 			}
 		}
+	#endif
 
+		void matMulnn(Matrix& out, const Matrix& a, const Matrix& b)
+		{
+		#if MNISTNN_MATMUL_IMPLEMENTATION == 0
+			matMulnnIjk(out, a, b);
+		#elif MNISTNN_MATMUL_IMPLEMENTATION == 1
+			matMulnnIkj(out, a, b);
+		#elif MNISTNN_MATMUL_IMPLEMENTATION == 2
+			constexpr Size optimized_column_threshold{ 4 };
+			if (out.cols < optimized_column_threshold)
+				matMulnnIjk(out, a, b);
+			else
+				matMulnnIkj(out, a, b);
+		#else
+			#error "Invalid MNISTNN_MATMUL_IMPLEMENTATION value"
+		#endif
+		}
+
+		// A x B-transposed and A-transposed x B-transposed already use i-j-k
+		// in both fixed implementations.
 		void matMulnt(Matrix& out, const Matrix& a, const Matrix& b)
 		{
 			for (Size i{ 0 }; i < out.rows; ++i)
-			{	
+			{
 				for (Size j{ 0 }; j < out.cols; ++j)
 				{
 					for (Size k{ 0 }; k < a.cols; ++k)
 					{
 						out.data[i * out.cols + j]
 							+= a.data[i * a.cols + k]
-							*  b.data[k + j * b.cols];
+							*  b.data[j * b.cols + k];
 					}
 				}
 			}
 		}
 
+	#if MNISTNN_MATMUL_IMPLEMENTATION == 0
+		void matMultn(Matrix& out, const Matrix& a, const Matrix& b)
+		{
+			for (Size i{ 0 }; i < out.rows; ++i)
+			{
+				for (Size j{ 0 }; j < out.cols; ++j)
+				{
+					for (Size k{ 0 }; k < a.rows; ++k)
+					{
+						out.data[i * out.cols + j]
+							+= a.data[k * a.cols + i]
+							*  b.data[k * b.cols + j];
+					}
+				}
+			}
+		}
+	#else
 		void matMultn(Matrix& out, const Matrix& a, const Matrix& b)
 		{
 			for (Size k{ 0 }; k < a.rows; ++k)
@@ -115,13 +198,14 @@ namespace mnistnn::linalg
 					for (Size j{ 0 }; j < out.cols; ++j)
 					{
 						out.data[i * out.cols + j]
-							+= a.data[i + k * a.cols]
-							*  b.data[j + k * b.cols];
+							+= a.data[k * a.cols + i]
+							*  b.data[k * b.cols + j];
 					}
 				}
 			}
 		}
-		
+	#endif
+
 		void matMultt(Matrix& out, const Matrix& a, const Matrix& b)
 		{
 			for (Size i{ 0 }; i < out.rows; ++i)
@@ -131,8 +215,8 @@ namespace mnistnn::linalg
 					for (Size k{ 0 }; k < a.rows; ++k)
 					{
 						out.data[i * out.cols + j]
-							+= a.data[i + k * a.cols]
-							*  b.data[k + j * b.cols];
+							+= a.data[k * a.cols + i]
+							*  b.data[j * b.cols + k];
 					}
 				}
 			}
@@ -172,7 +256,23 @@ namespace mnistnn::linalg
 			throw std::invalid_argument("matMul: invalid size of out matrix");
 		}
 
-		// zero out
+	#if MNISTNN_MATMUL_IMPLEMENTATION == 2
+		// These shape-specialized kernels overwrite every output element, so
+		// they do not need the general zero-fill followed by accumulation.
+		if (!transpose_a && !transpose_b && out.cols == 1)
+		{
+			matVecNn(out, a, b);
+			return;
+		}
+
+		if (!transpose_a && transpose_b && a_cols == 1)
+		{
+			outerProductNt(out, a, b);
+			return;
+		}
+	#endif
+
+		// General kernels accumulate into out.
 		fill(out, 0.0f);
 
 		std::uint32_t transpose{ 
